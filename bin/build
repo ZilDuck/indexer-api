@@ -12,5 +12,5 @@ echo "Using tag $tag"
 
 dingo -src=./internal/config/di -dest=./generated
 
-docker build . -t zilkroad/tx-api:$tag
-docker push zilkroad/tx-api:$tag
+docker build . -t dantudor/zilkroad-tx-api:$tag
+docker push dantudor/zilkroad-tx-api:$tag

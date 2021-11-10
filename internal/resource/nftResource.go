@@ -19,7 +19,7 @@ func NewNftResource(nftService service.NFTService) NftResource {
 }
 
 func (r nftResource) GetNftsOwnedByAddress(c *gin.Context) {
-	nfts, _, err := r.nftService.GetForAddress(c.Param("ownerAddr"), 0, 500)
+	nfts, _, err := r.nftService.GetForAddress(c.Param("ownerAddr"), 0, 10000)
 	if err != nil {
 		errorInternalServerError(c, fmt.Sprintf("Failed to get nfts for address: %s", c.Param("ownerAddr")))
 		return

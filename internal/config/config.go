@@ -8,16 +8,19 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Config struct {
-	Port          int
-	Logging       bool
-	LogPath       string
-	Network       string
-	Index         string
-	Debug         bool
-	ElasticSearch ElasticSearchConfig
+	Port                   int
+	Logging                bool
+	LogPath                string
+	Network                string
+	Index                  string
+	Debug                  bool
+	ElasticSearch          ElasticSearchConfig
+	Throttle               ThrottleConfig
+	CacheDefaultExpiration time.Duration
 }
 
 type ElasticSearchConfig struct {
@@ -27,6 +30,11 @@ type ElasticSearchConfig struct {
 	Debug       bool
 	Username    string
 	Password    string
+}
+
+type ThrottleConfig struct {
+	MaxEventsPerSec int
+	MaxBurstSize    int
 }
 
 func Init() {
@@ -58,6 +66,11 @@ func Get() *Config {
 			Username:    getString("ELASTIC_SEARCH_USERNAME", ""),
 			Password:    getString("ELASTIC_SEARCH_PASSWORD", ""),
 		},
+		Throttle: ThrottleConfig{
+			MaxEventsPerSec: getInt("MAX_EVENT_PER_SEC", 1000),
+			MaxBurstSize:    getInt("MAX_BURST_SIZE", 20),
+		},
+		CacheDefaultExpiration: getDuration("CACHE_DEFAULT_EXPIRATION", 60) * time.Second,
 	}
 }
 
@@ -94,4 +107,8 @@ func getSlice(key string, defaultVal []string, sep string) []string {
 	}
 
 	return strings.Split(valStr, sep)
+}
+
+func getDuration(key string, defaultValue int) time.Duration {
+	return time.Duration(getInt(key, defaultValue))
 }

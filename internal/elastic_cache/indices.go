@@ -8,6 +8,7 @@ import (
 type Indices string
 
 var NftIndex Indices = "nft"
+var TransactionIndex Indices = "transaction"
 
 // Sets the network and returns the full string
 func (i *Indices) Get() string {

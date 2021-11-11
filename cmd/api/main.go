@@ -9,6 +9,7 @@ import (
 	"github.com/gin-contrib/cache"
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
+	middleware "github.com/s12i/gin-throttle"
 	"github.com/sarulabs/dingo/v3"
 	"go.uber.org/zap"
 	"net/http"
@@ -33,7 +34,7 @@ func main() {
 	r.Use(framework.Options)
 	r.Use(framework.ErrorHandler)
 
-	//r.Use(middleware.Throttle(config.Get().Throttle.MaxEventsPerSec, config.Get().Throttle.MaxBurstSize))
+	r.Use(middleware.Throttle(config.Get().Throttle.MaxEventsPerSec, config.Get().Throttle.MaxBurstSize))
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Welcome to ZilkRoad NFT-API!")

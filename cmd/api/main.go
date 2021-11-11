@@ -10,6 +10,7 @@ import (
 	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/sarulabs/dingo/v3"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -36,6 +37,13 @@ func main() {
 
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Welcome to ZilkRoad NFT-API!")
+	})
+
+	r.GET("/cache-clear", func(c *gin.Context) {
+		if err := container.GetCacheStore().Flush(); err != nil {
+			zap.L().With(zap.Error(err)).Error("Failed to flush cache")
+		}
+		c.String(http.StatusOK, "")
 	})
 
 	nftResource := resource.NewNftResource(container.GetNftService(), container.GetCacheStore())

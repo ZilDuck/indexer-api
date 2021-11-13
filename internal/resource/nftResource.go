@@ -3,10 +3,9 @@ package resource
 import (
 	"fmt"
 	"github.com/dantudor/zilkroad-txapi/internal/service"
-	"github.com/gin-contrib/cache"
 	"github.com/gin-contrib/cache/persistence"
 	"github.com/gin-gonic/gin"
-	"log"
+	"strings"
 )
 
 type NftResource interface {
@@ -23,16 +22,10 @@ func NewNftResource(nftService service.NFTService, cache persistence.CacheStore)
 }
 
 func (r nftResource) GetNftsOwnedByAddress(c *gin.Context) {
-	var data interface{}
-	key := cache.CreateKey(c.Request.URL.RequestURI())
-	log.Println(key)
-	if err := r.cache.Get(key, &data); err != nil {
-		log.Println(err.Error())
-	}
-	log.Println(data)
-	nfts, _, err := r.nftService.GetForAddress(c.Param("ownerAddr"), 0, 10000)
+	ownerAddr := strings.ToLower(c.Param("ownerAddr"))
+	nfts, _, err := r.nftService.GetForAddress(ownerAddr, 0, 10000)
 	if err != nil {
-		errorInternalServerError(c, fmt.Sprintf("Failed to get nfts for address: %s", c.Param("ownerAddr")))
+		errorInternalServerError(c, fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr))
 		return
 	}
 

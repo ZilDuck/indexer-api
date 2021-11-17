@@ -29,7 +29,7 @@ jobs:
         run: GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o ./build/api ./cmd/api/main.go
 
       - name: Zip package
-        run: cd upload && zip -r ../upload.zip ./*
+        run: cd build && zip -r ../upload.zip ./*
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1

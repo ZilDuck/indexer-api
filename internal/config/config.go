@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"github.com/ZilDuck/indexer-api/internal/log"
 	"github.com/getsentry/sentry-go"
 	"github.com/joho/godotenv"
@@ -15,8 +14,6 @@ import (
 type Config struct {
 	Env                    string
 	Port                   int
-	Logging                bool
-	LogPath                string
 	Network                string
 	Index                  string
 	Debug                  bool
@@ -62,7 +59,7 @@ func Init() {
 	initSentry()
 }
 func initLogger() {
-	log.NewLogger(fmt.Sprintf("%s/indexer.log", Get().LogPath), Get().Debug, Get().SentryDsn)
+	log.NewLogger(Get().Debug, Get().SentryDsn)
 }
 
 func initSentry() {
@@ -81,8 +78,6 @@ func Get() *Config {
 	return &Config{
 		Env:                    getString("ENV", ""),
 		Port:                   getInt("PORT", 8080),
-		Logging:                getBool("LOGGING", false),
-		LogPath:                getString("LOG_PATH", "/app/logs"),
 		Network:                getString("NETWORK", "zilliqa"),
 		Index:                  getString("INDEX_NAME", "xxx"),
 		Debug:                  getBool("DEBUG", false),

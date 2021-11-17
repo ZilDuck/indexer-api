@@ -51,7 +51,7 @@ type ThrottleConfig struct {
 func Init() {
 	err := godotenv.Load()
 	if err != nil {
-		zap.L().With(zap.Error(err)).Fatal("Unable to init config")
+		panic(err)
 	}
 
 	initLogger()

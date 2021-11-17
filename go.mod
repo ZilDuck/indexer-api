@@ -7,6 +7,7 @@ require (
 	github.com/Zilliqa/gozilliqa-sdk v1.2.0 // indirect
 	github.com/apex/gateway v1.1.2
 	github.com/aws/aws-sdk-go v1.40.43
+	github.com/getsentry/sentry-go v0.10.0 // indirect
 	github.com/gin-contrib/cache v1.1.0
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/gzip v0.0.3

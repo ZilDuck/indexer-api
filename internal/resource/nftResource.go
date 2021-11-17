@@ -5,6 +5,7 @@ import (
 	"github.com/ZilDuck/indexer-api/internal/service"
 	"github.com/gin-contrib/cache/persistence"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"strings"
 )
 
@@ -26,7 +27,9 @@ func (r nftResource) GetNftsOwnedByAddress(c *gin.Context) {
 
 	nfts, _, err := r.nftService.GetForAddress(ownerAddr, 0, 10000)
 	if err != nil {
-		errorInternalServerError(c, fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr))
+		msg := fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr)
+		zap.L().With(zap.Error(err)).Error(msg)
+		errorInternalServerError(c, msg)
 		return
 	}
 

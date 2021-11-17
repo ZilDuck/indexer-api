@@ -28,18 +28,18 @@ jobs:
       - name: Build Api
         run: GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o ./build/api ./cmd/api/main.go
 
-      - name: Mainnet config
-        run: |
-          cp ./config/mainnet.yaml ./build/.env
-
       - uses: microsoft/variable-substitution@v1
         with:
-          files: './build/.env'
+          files: './config/mainnet.yaml'
         env:
           awsAccessKeyId: ${{ secrets.AWS_ACCESS_KEY_ID }}
           awsSecretAccessKey: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           elasticSearchHost: ${{ secrets.ELASTIC_SEARCH_HOST }}
           sentryDsn: ${{ secrets.SENTRY_DSN }}
+
+      - name: Mainnet config
+        run: |
+          cp ./config/mainnet.yaml ./build/.env
 
       - name: Zip package
         run: cd build && zip -r ../upload.zip .

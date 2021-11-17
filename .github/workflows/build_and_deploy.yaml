@@ -31,10 +31,10 @@ jobs:
       - name: Mainnet config
         run: |
           mv ./config/mainnet.yaml ./build/.env
-          sed -i 's/%AWS_ACCESS_KEY_ID%/${{ secrets.AWS_ACCESS_KEY_ID }}/g' ./build/.env
-          sed -i 's/%AWS_SECRET_ACCESS_KEY%/${{ secrets.AWS_SECRET_ACCESS_KEY }}/g' ./build/.env
-          sed -i 's/%ELASTIC_SEARCH_HOST%/${{ secrets.ELASTIC_SEARCH_HOST }}/g' ./build/.env
-          sed -i 's/%SENTRY_DSN%/${{ secrets.SENTRY_DSN }}/g' ./build/.env
+          sed -i 's!%AWS_ACCESS_KEY_ID%!${{ secrets.AWS_ACCESS_KEY_ID }}!g' ./build/.env
+          sed -i 's!%AWS_SECRET_ACCESS_KEY%!${{ secrets.AWS_SECRET_ACCESS_KEY }}!g' ./build/.env
+          sed -i 's!%ELASTIC_SEARCH_HOST%!${{ secrets.ELASTIC_SEARCH_HOST }}!g' ./build/.env
+          sed -i 's!%SENTRY_DSN%!${{ secrets.SENTRY_DSN }}!g' ./build/.env
 
       - name: Zip package
         run: cd build && zip -r ../upload.zip ./*

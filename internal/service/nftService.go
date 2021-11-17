@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/dantudor/zilkroad-txapi/internal/dto"
-	"github.com/dantudor/zilkroad-txapi/internal/factory"
-	"github.com/dantudor/zilkroad-txapi/internal/repository"
+	"github.com/ZilDuck/indexer-api/internal/dto"
+	"github.com/ZilDuck/indexer-api/internal/factory"
+	"github.com/ZilDuck/indexer-api/internal/repository"
 	"go.uber.org/zap"
 )
 

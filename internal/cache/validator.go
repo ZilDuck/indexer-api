@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"github.com/dantudor/zilkroad-txapi/internal/repository"
+	"github.com/ZilDuck/indexer-api/internal/repository"
 	"github.com/gin-contrib/cache/persistence"
 	"go.uber.org/zap"
 	"time"

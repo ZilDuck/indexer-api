@@ -1,8 +1,8 @@
 package factory
 
 import (
-	"github.com/dantudor/zilkroad-txapi/internal/dto"
-	"github.com/dantudor/zilkroad-txapi/internal/entity"
+	"github.com/ZilDuck/indexer-api/internal/dto"
+	"github.com/ZilDuck/indexer-api/internal/entity"
 )
 
 func NftsIndexToDto(nfts []entity.NFT) dto.NFTs {

@@ -1,13 +1,13 @@
 package di
 
 import (
-	"github.com/dantudor/zilkroad-txapi/internal/cache"
-	"github.com/dantudor/zilkroad-txapi/internal/config"
-	"github.com/dantudor/zilkroad-txapi/internal/elastic_cache"
-	"github.com/dantudor/zilkroad-txapi/internal/repository"
-	"github.com/dantudor/zilkroad-txapi/internal/service"
+	"github.com/ZilDuck/indexer-api/internal/cache"
+	"github.com/ZilDuck/indexer-api/internal/config"
+	"github.com/ZilDuck/indexer-api/internal/elastic_cache"
+	"github.com/ZilDuck/indexer-api/internal/repository"
+	"github.com/ZilDuck/indexer-api/internal/service"
 	"github.com/gin-contrib/cache/persistence"
-	"github.com/sarulabs/dingo/v3"
+	"github.com/sarulabs/dingo/v4"
 	"go.uber.org/zap"
 	"time"
 )
@@ -15,7 +15,7 @@ import (
 var Definitions = []dingo.Def{
 	{
 		Name: "elastic",
-		Build: func() (*elastic_cache.Index, error) {
+		Build: func() (elastic_cache.Index, error) {
 			elastic, err := elastic_cache.New()
 			if err != nil {
 				zap.L().With(zap.Error(err)).Fatal("Failed to start ES")
@@ -26,13 +26,13 @@ var Definitions = []dingo.Def{
 	},
 	{
 		Name: "nft.repository",
-		Build: func(elastic *elastic_cache.Index) (repository.NftRepository, error) {
+		Build: func(elastic elastic_cache.Index) (repository.NftRepository, error) {
 			return repository.NewNftRepository(elastic), nil
 		},
 	},
 	{
 		Name: "tx.repository",
-		Build: func(elastic *elastic_cache.Index, store persistence.CacheStore) (repository.TransactionRepository, error) {
+		Build: func(elastic elastic_cache.Index, store persistence.CacheStore) (repository.TransactionRepository, error) {
 			return repository.NewTransactionRepository(elastic, store), nil
 		},
 	},

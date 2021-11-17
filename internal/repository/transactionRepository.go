@@ -1,11 +1,10 @@
 package repository
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
-	"github.com/dantudor/zilkroad-txapi/internal/elastic_cache"
-	"github.com/dantudor/zilkroad-txapi/internal/entity"
+	"github.com/ZilDuck/indexer-api/internal/elastic_cache"
+	"github.com/ZilDuck/indexer-api/internal/entity"
 	"github.com/gin-contrib/cache/persistence"
 	"github.com/olivere/elastic/v7"
 )
@@ -15,7 +14,7 @@ type TransactionRepository interface {
 }
 
 type transactionRepository struct {
-	elastic *elastic_cache.Index
+	elastic elastic_cache.Index
 	cache   persistence.CacheStore
 }
 
@@ -23,16 +22,15 @@ var (
 	ErrTxNotFound = errors.New("tx not found")
 )
 
-func NewTransactionRepository(elastic *elastic_cache.Index, cache persistence.CacheStore) TransactionRepository {
+func NewTransactionRepository(elastic elastic_cache.Index, cache persistence.CacheStore) TransactionRepository {
 	return transactionRepository{elastic, cache}
 }
 
 func (txRepo transactionRepository) GetBestBlock() (uint64, error) {
-	result, err := txRepo.elastic.Client.
+	result, err := search(txRepo.elastic.Client.
 		Search(elastic_cache.TransactionIndex.Get()).
 		Size(1).
-		Sort("BlockNum", false).
-		Do(context.Background())
+		Sort("BlockNum", false))
 
 	tx, err := txRepo.findOne(result, err)
 	if err != nil {

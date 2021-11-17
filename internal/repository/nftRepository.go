@@ -1,11 +1,10 @@
 package repository
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
-	"github.com/dantudor/zilkroad-txapi/internal/elastic_cache"
-	"github.com/dantudor/zilkroad-txapi/internal/entity"
+	"github.com/ZilDuck/indexer-api/internal/elastic_cache"
+	"github.com/ZilDuck/indexer-api/internal/entity"
 	"github.com/olivere/elastic/v7"
 )
 
@@ -15,14 +14,14 @@ type NftRepository interface {
 }
 
 type nftRepository struct {
-	elastic *elastic_cache.Index
+	elastic elastic_cache.Index
 }
 
 var (
 	ErrNftNotFound = errors.New("nft not found")
 )
 
-func NewNftRepository(elastic *elastic_cache.Index) NftRepository {
+func NewNftRepository(elastic elastic_cache.Index) NftRepository {
 	return nftRepository{elastic: elastic}
 }
 
@@ -32,23 +31,21 @@ func (nftRepo nftRepository) GetNft(contractAddr string, tokenId int) (entity.NF
 		elastic.NewTermQuery("tokenId", tokenId),
 	)
 
-	result, err := nftRepo.elastic.Client.
+	result, err := search(nftRepo.elastic.Client.
 		Search(elastic_cache.NftIndex.Get()).
 		Query(query).
-		Size(1).
-		Do(context.Background())
+		Size(1))
 
 	return nftRepo.findOne(result, err)
 }
 
 func (nftRepo nftRepository) GetForAddress(ownerAddr string, from, size int) ([]entity.NFT, int64, error) {
-	result, err := nftRepo.elastic.Client.
+	result, err := search(nftRepo.elastic.Client.
 		Search(elastic_cache.NftIndex.Get()).
 		Query(elastic.NewTermQuery("owner.keyword", ownerAddr)).
 		Size(size).
 		From(from).
-		TrackTotalHits(true).
-		Do(context.Background())
+		TrackTotalHits(true))
 
 	return nftRepo.findMany(result, err)
 }

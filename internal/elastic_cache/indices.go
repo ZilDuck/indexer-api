@@ -2,7 +2,7 @@ package elastic_cache
 
 import (
 	"fmt"
-	"github.com/dantudor/zilkroad-txapi/internal/config"
+	"github.com/ZilDuck/indexer-api/internal/config"
 )
 
 type Indices string

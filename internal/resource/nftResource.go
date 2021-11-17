@@ -2,7 +2,7 @@ package resource
 
 import (
 	"fmt"
-	"github.com/dantudor/zilkroad-txapi/internal/service"
+	"github.com/ZilDuck/indexer-api/internal/service"
 	"github.com/gin-contrib/cache/persistence"
 	"github.com/gin-gonic/gin"
 	"strings"
@@ -23,6 +23,7 @@ func NewNftResource(nftService service.NFTService, cache persistence.CacheStore)
 
 func (r nftResource) GetNftsOwnedByAddress(c *gin.Context) {
 	ownerAddr := strings.ToLower(c.Param("ownerAddr"))
+
 	nfts, _, err := r.nftService.GetForAddress(ownerAddr, 0, 10000)
 	if err != nil {
 		errorInternalServerError(c, fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr))

@@ -2,38 +2,39 @@ package resource
 
 import (
 	"fmt"
-	"github.com/ZilDuck/indexer-api/internal/service"
-	"github.com/gin-contrib/cache/persistence"
+	"github.com/ZilDuck/indexer-api/internal/factory"
+	"github.com/ZilDuck/indexer-api/internal/repository"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"net/http"
 	"strings"
 )
 
-type NftResource interface {
-	GetNftsOwnedByAddress(c *gin.Context)
+type NftResource struct {
+	nftRepo repository.NftRepository
 }
 
-type nftResource struct {
-	nftService service.NFTService
-	cache      persistence.CacheStore
+func NewNftResource(nftRepo repository.NftRepository) NftResource {
+	return NftResource{nftRepo}
 }
 
-func NewNftResource(nftService service.NFTService, cache persistence.CacheStore) NftResource {
-	return nftResource{nftService, cache}
-}
-
-func (r nftResource) GetNftsOwnedByAddress(c *gin.Context) {
+func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 	ownerAddr := strings.ToLower(c.Param("ownerAddr"))
 
-	nfts, _, err := r.nftService.GetForAddress(ownerAddr, 0, 10000)
+	nfts, total, err := r.nftRepo.GetForAddress(ownerAddr, 0, 1)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr)
+
 		zap.L().With(zap.Error(err)).Error(msg)
-		errorInternalServerError(c, msg)
+
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			gin.H{"message": msg, "status": http.StatusInternalServerError},
+		)
+
 		return
 	}
+	zap.S().Infof("Found %d NFT For %s", total, ownerAddr)
 
-	c.Header("Cache-Miss", "true")
-
-	c.JSON(200, nfts)
+	c.JSON(200, factory.NftsIndexToDto(nfts))
 }

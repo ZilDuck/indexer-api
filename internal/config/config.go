@@ -11,18 +11,14 @@ import (
 )
 
 type Config struct {
-	Env                    string
-	Port                   int
-	Network                string
-	Index                  string
-	Debug                  bool
-	ElasticSearch          ElasticSearchConfig
-	Throttle               ThrottleConfig
-	Subscribe              bool
-	Cache                  bool
-	CacheDefaultExpiration time.Duration
-	Aws                    AwsConfig
-	SentryDsn              string
+	Env           string
+	Port          int
+	Network       string
+	Index         string
+	Debug         bool
+	ElasticSearch ElasticSearchConfig
+	Aws           AwsConfig
+	SentryDsn     string
 }
 
 type AwsConfig struct {
@@ -75,15 +71,12 @@ func initSentry() {
 
 func Get() *Config {
 	return &Config{
-		Env:                    getString("ENV", ""),
-		Port:                   getInt("PORT", 8080),
-		Network:                getString("NETWORK", "zilliqa"),
-		Index:                  getString("INDEX_NAME", "xxx"),
-		Debug:                  getBool("DEBUG", false),
-		Subscribe:              getBool("SUBSCRIBE", false),
-		Cache:                  getBool("CACHE", false),
-		CacheDefaultExpiration: getDuration("CACHE_DEFAULT_EXPIRATION", 60) * time.Second,
-		SentryDsn:              getString("SENTRY_DSN", ""),
+		Env:       getString("ENV", ""),
+		Port:      getInt("PORT", 8080),
+		Network:   getString("NETWORK", "zilliqa"),
+		Index:     getString("INDEX_NAME", "xxx"),
+		Debug:     getBool("DEBUG", false),
+		SentryDsn: getString("SENTRY_DSN", ""),
 		Aws: AwsConfig{
 			AccessKey: getString("AWS_ES_ACCESS_KEY", ""),
 			SecretKey: getString("AWS_ES_SECRET_KEY", ""),
@@ -98,10 +91,6 @@ func Get() *Config {
 			Debug:       getBool("ELASTIC_SEARCH_DEBUG", false),
 			Username:    getString("ELASTIC_SEARCH_USERNAME", ""),
 			Password:    getString("ELASTIC_SEARCH_PASSWORD", ""),
-		},
-		Throttle: ThrottleConfig{
-			MaxEventsPerSec: getInt("MAX_EVENT_PER_SEC", 1000),
-			MaxBurstSize:    getInt("MAX_BURST_SIZE", 20),
 		},
 	}
 }

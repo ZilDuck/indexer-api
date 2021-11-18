@@ -13,8 +13,8 @@ type Index struct {
 	Client *elastic.Client
 }
 
-func New() (Index, error) {
-	client, err := newClient()
+func New(elasticConfig config.ElasticSearchConfig, awsConfig config.AwsConfig) (Index, error) {
+	client, err := newClient(elasticConfig, awsConfig)
 	if err != nil {
 		zap.L().With(zap.Error(err)).Fatal("ElasticCache: Failed to create client")
 	}
@@ -22,25 +22,23 @@ func New() (Index, error) {
 	return Index{client}, err
 }
 
-func newClient() (*elastic.Client, error) {
+func newClient(elasticConfig config.ElasticSearchConfig, awsConfig config.AwsConfig) (*elastic.Client, error) {
+	zap.S().Infof("Using elastic search instance: %s", elasticConfig.Host)
+
 	opts := []elastic.ClientOptionFunc{
+		//elastic.SetURL(elasticConfig.Host),
 		elastic.SetURL("https://search-zilkroad-index-wlmccxpkwz6ps7sohqqjvdphqa.us-east-1.es.amazonaws.com"),
-		elastic.SetSniff(config.Get().ElasticSearch.Sniff),
-		elastic.SetHealthcheck(config.Get().ElasticSearch.HealthCheck),
+		elastic.SetSniff(elasticConfig.Sniff),
+		elastic.SetHealthcheck(elasticConfig.HealthCheck),
 	}
 
-	if config.Get().ElasticSearch.Debug {
+	if elasticConfig.Debug {
 		opts = append(opts, elastic.SetTraceLog(ElasticLogger{}))
 	}
 
-	if config.Get().ElasticSearch.Aws {
-		zap.S().Infof("SentryDsn: %s", config.Get().SentryDsn)
-		zap.S().Infof("Host: %s", "https://search-zilkroad-index-wlmccxpkwz6ps7sohqqjvdphqa.us-east-1.es.amazonaws.com")
-		zap.S().Infof("AccessKeyId: %s", config.Get().Aws.AccessKey)
-		zap.S().Infof("SecretKey: %s", config.Get().Aws.SecretKey)
-		zap.S().Infof("Token: %s", config.Get().Aws.Token)
-		creds := credentials.NewStaticCredentials(config.Get().Aws.AccessKey, config.Get().Aws.SecretKey, config.Get().Aws.Token)
-		awsClient, err := aws_signing_client.New(v4.NewSigner(creds), nil, "es", config.Get().Aws.Region)
+	if elasticConfig.Aws {
+		creds := credentials.NewStaticCredentials(awsConfig.AccessKey, awsConfig.SecretKey, awsConfig.Token)
+		awsClient, err := aws_signing_client.New(v4.NewSigner(creds), nil, "es", awsConfig.Region)
 		if err != nil {
 			return nil, err
 		}
@@ -50,10 +48,10 @@ func newClient() (*elastic.Client, error) {
 		return elastic.NewClient(opts...)
 	}
 
-	if config.Get().ElasticSearch.Username != "" {
+	if elasticConfig.Username != "" {
 		opts = append(opts, elastic.SetBasicAuth(
-			config.Get().ElasticSearch.Username,
-			config.Get().ElasticSearch.Password,
+			elasticConfig.Username,
+			elasticConfig.Password,
 		))
 	}
 

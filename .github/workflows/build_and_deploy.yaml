@@ -32,8 +32,8 @@ jobs:
         with:
           files: './config/mainnet.yaml'
         env:
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ES_ACCESS_KEY_ID }}
-          AWS_SECRET_KEY: ${{ secrets.AWS_ES_SECRET_ACCESS_KEY }}
+          AWS_ES_ACCESS_KEY: ${{ secrets.AWS_ES_ACCESS_KEY_ID }}
+          AWS_ES_SECRET_KEY: ${{ secrets.AWS_ES_SECRET_ACCESS_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
       - name: Mainnet config

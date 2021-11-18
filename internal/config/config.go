@@ -85,8 +85,8 @@ func Get() *Config {
 		CacheDefaultExpiration: getDuration("CACHE_DEFAULT_EXPIRATION", 60) * time.Second,
 		SentryDsn:              getString("SENTRY_DSN", ""),
 		Aws: AwsConfig{
-			AccessKey: getString("AWS_ACCESS_KEY", ""),
-			SecretKey: getString("AWS_SECRET_KEY", ""),
+			AccessKey: getString("AWS_ES_ACCESS_KEY", ""),
+			SecretKey: getString("AWS_ES_SECRET_KEY", ""),
 			Token:     getString("AWS_TOKEN", ""),
 			Region:    getString("AWS_REGION", ""),
 		},

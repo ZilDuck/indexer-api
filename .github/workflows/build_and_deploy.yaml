@@ -34,7 +34,6 @@ jobs:
         env:
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          ELASTIC_SEARCH_HOSTS: ${{ secrets.ELASTIC_SEARCH_HOST }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
       - name: Mainnet config

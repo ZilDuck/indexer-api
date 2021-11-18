@@ -35,6 +35,7 @@ func newClient() (*elastic.Client, error) {
 	}
 
 	if config.Get().ElasticSearch.Aws {
+		zap.S().Infof("SentryDsn: %s", config.Get().SentryDsn)
 		zap.S().Infof("Host: %s", config.Get().ElasticSearch.Hosts)
 		zap.S().Infof("AccessKeyId: %s", config.Get().Aws.AccessKey)
 		zap.S().Infof("SecretKey: %s", config.Get().Aws.SecretKey)

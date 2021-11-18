@@ -4,7 +4,7 @@ INDEX_NAME: mainnet
 DEBUG: true
 
 ELASTIC_SEARCH_AWS: true
-ELASTIC_SEARCH_HOSTS: https://search-zilkroad-index-wlmccxpkwz6ps7sohqqjvdphqa.us-east-1.es.amazonaws.com
+ELASTIC_SEARCH_HOST: https://search-zilkroad-index-wlmccxpkwz6ps7sohqqjvdphqa.us-east-1.es.amazonaws.com
 ELASTIC_SEARCH_SNIFF: false
 ELASTIC_SEARCH_HEALTH_CHECK: false
 ELASTIC_SEARCH_DEBUG: false

@@ -7,7 +7,6 @@ import (
 	"github.com/olivere/elastic/v7"
 	"github.com/sha1sum/aws_signing_client"
 	"go.uber.org/zap"
-	"strings"
 )
 
 type Index struct {
@@ -25,7 +24,7 @@ func New() (Index, error) {
 
 func newClient() (*elastic.Client, error) {
 	opts := []elastic.ClientOptionFunc{
-		elastic.SetURL(strings.Join(config.Get().ElasticSearch.Hosts, ",")),
+		elastic.SetURL(config.Get().ElasticSearch.Host),
 		elastic.SetSniff(config.Get().ElasticSearch.Sniff),
 		elastic.SetHealthcheck(config.Get().ElasticSearch.HealthCheck),
 	}
@@ -36,7 +35,7 @@ func newClient() (*elastic.Client, error) {
 
 	if config.Get().ElasticSearch.Aws {
 		zap.S().Infof("SentryDsn: %s", config.Get().SentryDsn)
-		zap.S().Infof("Host: %s", config.Get().ElasticSearch.Hosts)
+		zap.S().Infof("Host: %s", config.Get().ElasticSearch.Host)
 		zap.S().Infof("AccessKeyId: %s", config.Get().Aws.AccessKey)
 		zap.S().Infof("SecretKey: %s", config.Get().Aws.SecretKey)
 		zap.S().Infof("Token: %s", config.Get().Aws.Token)

@@ -7,7 +7,6 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -35,7 +34,7 @@ type AwsConfig struct {
 
 type ElasticSearchConfig struct {
 	Aws         bool
-	Hosts       []string
+	Host        string
 	Sniff       bool
 	HealthCheck bool
 	Debug       bool
@@ -93,7 +92,7 @@ func Get() *Config {
 		},
 		ElasticSearch: ElasticSearchConfig{
 			Aws:         getBool("ELASTIC_SEARCH_AWS", true),
-			Hosts:       getSlice("ELASTIC_SEARCH_HOSTS", make([]string, 0), ","),
+			Host:        getString("ELASTIC_SEARCH_HOST", ""),
 			Sniff:       getBool("ELASTIC_SEARCH_SNIFF", true),
 			HealthCheck: getBool("ELASTIC_SEARCH_HEALTH_CHECK", true),
 			Debug:       getBool("ELASTIC_SEARCH_DEBUG", false),
@@ -131,15 +130,6 @@ func getBool(key string, defaultValue bool) bool {
 	}
 
 	return defaultValue
-}
-
-func getSlice(key string, defaultVal []string, sep string) []string {
-	valStr := getString(key, "")
-	if valStr == "" {
-		return defaultVal
-	}
-
-	return strings.Split(valStr, sep)
 }
 
 func getDuration(key string, defaultValue int) time.Duration {

@@ -35,6 +35,10 @@ func newClient() (*elastic.Client, error) {
 	}
 
 	if config.Get().ElasticSearch.Aws {
+		zap.S().Infof("Host: %s", config.Get().ElasticSearch.Hosts)
+		zap.S().Infof("AccessKeyId: %s", config.Get().Aws.AccessKey)
+		zap.S().Infof("SecretKey: %s", config.Get().Aws.SecretKey)
+		zap.S().Infof("Token: %s", config.Get().Aws.Token)
 		creds := credentials.NewStaticCredentials(config.Get().Aws.AccessKey, config.Get().Aws.SecretKey, config.Get().Aws.Token)
 		awsClient, err := aws_signing_client.New(v4.NewSigner(creds), nil, "es", config.Get().Aws.Region)
 		if err != nil {

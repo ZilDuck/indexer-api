@@ -24,7 +24,7 @@ func New() (Index, error) {
 
 func newClient() (*elastic.Client, error) {
 	opts := []elastic.ClientOptionFunc{
-		elastic.SetURL(config.Get().ElasticSearch.Host),
+		elastic.SetURL("https://search-zilkroad-index-wlmccxpkwz6ps7sohqqjvdphqa.us-east-1.es.amazonaws.com"),
 		elastic.SetSniff(config.Get().ElasticSearch.Sniff),
 		elastic.SetHealthcheck(config.Get().ElasticSearch.HealthCheck),
 	}
@@ -35,7 +35,7 @@ func newClient() (*elastic.Client, error) {
 
 	if config.Get().ElasticSearch.Aws {
 		zap.S().Infof("SentryDsn: %s", config.Get().SentryDsn)
-		zap.S().Infof("Host: %s", config.Get().ElasticSearch.Host)
+		zap.S().Infof("Host: %s", "https://search-zilkroad-index-wlmccxpkwz6ps7sohqqjvdphqa.us-east-1.es.amazonaws.com")
 		zap.S().Infof("AccessKeyId: %s", config.Get().Aws.AccessKey)
 		zap.S().Infof("SecretKey: %s", config.Get().Aws.SecretKey)
 		zap.S().Infof("Token: %s", config.Get().Aws.Token)

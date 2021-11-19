@@ -33,7 +33,7 @@ jobs:
           AWS_ES_SECRET_KEY: ${{ secrets.AWS_ES_SECRET_ACCESS_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
-      - name: Mainnet config
+      - name: Copy Config
         run: |
           cp ./config/testnet.yaml ./build/.env
 

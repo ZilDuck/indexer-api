@@ -12,7 +12,8 @@ import (
 
 type Config struct {
 	Env           string
-	Port          int
+	ApiPort       int
+	DashboardPort int
 	Network       string
 	Index         string
 	Debug         bool
@@ -71,12 +72,13 @@ func initSentry() {
 
 func Get() *Config {
 	return &Config{
-		Env:       getString("ENV", ""),
-		Port:      getInt("PORT", 8080),
-		Network:   getString("NETWORK", "zilliqa"),
-		Index:     getString("INDEX_NAME", "xxx"),
-		Debug:     getBool("DEBUG", false),
-		SentryDsn: getString("SENTRY_DSN", ""),
+		Env:           getString("ENV", ""),
+		ApiPort:       getInt("API_PORT", 8082),
+		DashboardPort: getInt("DASHBOARD_PORT", 9200),
+		Network:       getString("NETWORK", "zilliqa"),
+		Index:         getString("INDEX_NAME", "xxx"),
+		Debug:         getBool("DEBUG", false),
+		SentryDsn:     getString("SENTRY_DSN", ""),
 		Aws: AwsConfig{
 			AccessKey: getString("AWS_ES_ACCESS_KEY", ""),
 			SecretKey: getString("AWS_ES_SECRET_KEY", ""),

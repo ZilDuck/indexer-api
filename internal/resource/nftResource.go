@@ -21,7 +21,7 @@ func NewNftResource(nftRepo repository.NftRepository) NftResource {
 func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 	ownerAddr := strings.ToLower(c.Param("ownerAddr"))
 
-	nfts, total, err := r.nftRepo.GetForAddress(ownerAddr, 0, 1)
+	nfts, total, err := r.nftRepo.GetForAddress(ownerAddr, 10000, 1)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr)
 
@@ -35,6 +35,8 @@ func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 		return
 	}
 	zap.S().Infof("Found %d NFT For %s", total, ownerAddr)
+
+	c.Header("Cache-Control", "max-age=60")
 
 	c.JSON(200, factory.NftsIndexToDto(nfts))
 }

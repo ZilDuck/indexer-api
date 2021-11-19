@@ -36,5 +36,7 @@ func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 	}
 	zap.S().Infof("Found %d NFT For %s", total, ownerAddr)
 
+	c.Header("Cache-Control", "max-age=60")
+
 	c.JSON(200, factory.NftsIndexToDto(nfts))
 }

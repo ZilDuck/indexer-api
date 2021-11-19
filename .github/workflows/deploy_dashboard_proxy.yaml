@@ -1,4 +1,4 @@
-name: Deploy testnet
+name: Deploy dashboard proxy
 
 on:
   push:

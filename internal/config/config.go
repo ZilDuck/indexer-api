@@ -80,8 +80,8 @@ func Get() *Config {
 		Aws: AwsConfig{
 			AccessKey: getString("AWS_ES_ACCESS_KEY", ""),
 			SecretKey: getString("AWS_ES_SECRET_KEY", ""),
-			Token:     getString("AWS_TOKEN", ""),
-			Region:    getString("AWS_REGION", ""),
+			Token:     getString("AWS_ES_TOKEN", ""),
+			Region:    getString("AWS_ES_REGION", ""),
 		},
 		ElasticSearch: ElasticSearchConfig{
 			Aws:         getBool("ELASTIC_SEARCH_AWS", true),

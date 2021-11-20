@@ -45,6 +45,7 @@ func (nftRepo nftRepository) GetForContract(contractAddr string, size, page int)
 		Search(elastic_cache.NftIndex.Get()).
 		Query(elastic.NewTermQuery("contract.keyword", contractAddr)).
 		Size(size).
+		Sort("tokenId", true).
 		From(from).
 		TrackTotalHits(true))
 

@@ -40,3 +40,26 @@ func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 
 	c.JSON(200, factory.NftsIndexToDto(nfts))
 }
+
+func (r NftResource) GetContractNfts(c *gin.Context) {
+	contractAddr := strings.ToLower(c.Param("contractAddr"))
+
+	nfts, total, err := r.nftRepo.GetForContract(contractAddr, 10000, 1)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to get nfts for contract: %s", contractAddr)
+
+		zap.L().With(zap.Error(err)).Error(msg)
+
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			gin.H{"message": msg, "status": http.StatusInternalServerError},
+		)
+
+		return
+	}
+	zap.S().Infof("Found %d NFT For %s", total, contractAddr)
+
+	c.Header("Cache-Control", "max-age=60")
+
+	c.JSON(200, nfts)
+}

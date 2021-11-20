@@ -1,18 +1,16 @@
 package repository
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"github.com/ZilDuck/indexer-api/internal/elastic_cache"
 	"github.com/ZilDuck/indexer-api/internal/entity"
 	"github.com/olivere/elastic/v7"
-	"go.uber.org/zap"
-	"time"
 )
 
 type NftRepository interface {
 	GetForAddress(ownerAddr string, size, page int) ([]entity.NFT, int64, error)
+	GetForContract(contractAddr string, size, page int) ([]entity.NFT, int64, error)
 }
 
 type nftRepository struct {
@@ -40,6 +38,19 @@ func (nftRepo nftRepository) GetForAddress(ownerAddr string, size, page int) ([]
 	return nftRepo.findMany(result, err)
 }
 
+func (nftRepo nftRepository) GetForContract(contractAddr string, size, page int) ([]entity.NFT, int64, error) {
+	from := size*page - size
+
+	result, err := search(nftRepo.elastic.Client.
+		Search(elastic_cache.NftIndex.Get()).
+		Query(elastic.NewTermQuery("contract.keyword", contractAddr)).
+		Size(size).
+		From(from).
+		TrackTotalHits(true))
+
+	return nftRepo.findMany(result, err)
+}
+
 func (nftRepo nftRepository) findOne(results *elastic.SearchResult, err error) (*entity.NFT, error) {
 	if err != nil {
 		return nil, err
@@ -54,17 +65,6 @@ func (nftRepo nftRepository) findOne(results *elastic.SearchResult, err error) (
 	err = json.Unmarshal(hit.Source, &nft)
 
 	return &nft, err
-}
-
-func search(searchService *elastic.SearchService) (*elastic.SearchResult, error) {
-	result, err := searchService.Do(context.Background())
-	if err != nil && err.Error() == "elastic: Error 429 (Too Many Requests)" {
-		zap.L().Warn("Elastic: 429 (Too Many Requests)")
-		time.Sleep(5 * time.Second)
-		return search(searchService)
-	}
-
-	return result, err
 }
 
 func (nftRepo nftRepository) findMany(results *elastic.SearchResult, err error) ([]entity.NFT, int64, error) {

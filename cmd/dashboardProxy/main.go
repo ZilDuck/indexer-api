@@ -49,7 +49,7 @@ func setupRouter() *gin.Engine {
 
 	r.NoRoute(func(c *gin.Context) {
 		awsConfig := config.Get().Aws
-		Swapcreds := credentials.NewStaticCredentials(awsConfig.AccessKey, awsConfig.SecretKey, awsConfig.Token)
+		creds := credentials.NewStaticCredentials(awsConfig.AccessKey, awsConfig.SecretKey, awsConfig.Token)
 		awsClient, err := aws_signing_client.New(v4.NewSigner(creds), nil, "es", awsConfig.Region)
 		if err != nil {
 			panic(err)

@@ -26,11 +26,16 @@ func NewNftRepository(elastic elastic_cache.Index) NftRepository {
 }
 
 func (nftRepo nftRepository) GetForAddress(ownerAddr string, size, page int) ([]entity.NFT, int64, error) {
+	query := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("owner.keyword", ownerAddr),
+		elastic.NewTermQuery("burnedAt", 0),
+	)
+
 	from := size*page - size
 
 	result, err := search(nftRepo.elastic.Client.
 		Search(elastic_cache.NftIndex.Get()).
-		Query(elastic.NewTermQuery("owner.keyword", ownerAddr)).
+		Query(query).
 		Size(size).
 		From(from).
 		TrackTotalHits(true))

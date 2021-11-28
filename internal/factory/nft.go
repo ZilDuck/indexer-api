@@ -1,33 +1,28 @@
 package factory
 
 import (
-	"fmt"
 	"github.com/ZilDuck/indexer-api/internal/dto"
 	"github.com/ZilDuck/indexer-api/internal/entity"
 )
 
-func NftsIndexToDto(nfts []entity.NFT) dto.NFTs {
-	dtos := dto.NFTs{}
+func NftsIndexToDto(nfts []entity.NFT) []*dto.Contract {
+	contracts := make([]*dto.Contract, 0)
 
 	for _, nft := range nfts {
-		if _, ok := dtos[nft.Contract]; !ok {
-			dtos[nft.Contract] = dto.NFT{}
+
+		var contract *dto.Contract
+		for idx := range contracts {
+			if contracts[idx].Address == nft.Contract {
+				contract = contracts[idx]
+			}
+		}
+		if contract == nil {
+			contract = &dto.Contract{Address: nft.Contract}
+			contracts = append(contracts, contract)
 		}
 
-		var token dto.Token
-		switch {
-		case nft.Zrc1:
-			token.Uri = nft.TokenUri
-			token.Type = "ZRC1"
-			break
-		case nft.Zrc6:
-			token.Uri = fmt.Sprintf("%s%d", nft.TokenUri, nft.TokenId)
-			token.Type = "ZRC6"
-			break
-		}
-
-		dtos[nft.Contract][nft.TokenId] = token
+		contract.TokenIds = append(contract.TokenIds, nft.TokenId)
 	}
 
-	return dtos
+	return contracts
 }

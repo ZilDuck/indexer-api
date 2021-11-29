@@ -7,15 +7,12 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"strconv"
-	"time"
 )
 
 type Config struct {
 	Env           string
 	ApiPort       int
 	DashboardPort int
-	Network       string
-	Index         string
 	Debug         bool
 	ElasticSearch ElasticSearchConfig
 	Aws           AwsConfig
@@ -75,8 +72,6 @@ func Get() *Config {
 		Env:           getString("ENV", ""),
 		ApiPort:       getInt("API_PORT", 8082),
 		DashboardPort: getInt("DASHBOARD_PORT", 9200),
-		Network:       getString("NETWORK", "zilliqa"),
-		Index:         getString("INDEX_NAME", "xxx"),
 		Debug:         getBool("DEBUG", false),
 		SentryDsn:     getString("SENTRY_DSN", ""),
 		Aws: AwsConfig{
@@ -121,8 +116,4 @@ func getBool(key string, defaultValue bool) bool {
 	}
 
 	return defaultValue
-}
-
-func getDuration(key string, defaultValue int) time.Duration {
-	return time.Duration(getInt(key, defaultValue))
 }

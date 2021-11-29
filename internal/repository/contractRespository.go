@@ -9,8 +9,8 @@ import (
 )
 
 type ContactRepository interface {
-	GetContracts() ([]*entity.Contract, int64, error)
-	GetContract(contractAddr string) (*entity.Contract, error)
+	GetContracts(network string) ([]*entity.Contract, int64, error)
+	GetContract(network, contractAddr string) (*entity.Contract, error)
 }
 
 type contactRepository struct {
@@ -25,9 +25,9 @@ func NewContractRepository(elastic elastic_cache.Index) ContactRepository {
 	return contactRepository{elastic: elastic}
 }
 
-func (contractRepo contactRepository) GetContracts() ([]*entity.Contract, int64, error) {
+func (contractRepo contactRepository) GetContracts(network string) ([]*entity.Contract, int64, error) {
 	result, err := search(contractRepo.elastic.Client.
-		Search(elastic_cache.ContractIndex.Get()).
+		Search(elastic_cache.ContractIndex.Get(network)).
 		Query(elastic.NewTermQuery("zrc6", true)).
 		Sort("blockNum", false).
 		Size(100))
@@ -35,9 +35,9 @@ func (contractRepo contactRepository) GetContracts() ([]*entity.Contract, int64,
 	return contractRepo.findMany(result, err)
 }
 
-func (contractRepo contactRepository) GetContract(contractAddr string) (*entity.Contract, error) {
+func (contractRepo contactRepository) GetContract(network, contractAddr string) (*entity.Contract, error) {
 	result, err := search(contractRepo.elastic.Client.
-		Search(elastic_cache.ContractIndex.Get()).
+		Search(elastic_cache.ContractIndex.Get(network)).
 		Query(elastic.NewTermQuery("address.keyword", contractAddr)).
 		Size(1))
 

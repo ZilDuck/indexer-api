@@ -20,7 +20,7 @@ func NewContractResource(contactRepo repository.ContactRepository) ContractResou
 func (r ContractResource) GetContract(c *gin.Context) {
 	contractAddr := strings.ToLower(c.Param("contractAddr"))
 
-	contract, err := r.contactRepo.GetContract(contractAddr)
+	contract, err := r.contactRepo.GetContract(network(c), contractAddr)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to get contract: %s", contractAddr)
 
@@ -40,7 +40,7 @@ func (r ContractResource) GetContract(c *gin.Context) {
 }
 
 func (r ContractResource) GetContracts(c *gin.Context) {
-	contracts, _, err := r.contactRepo.GetContracts()
+	contracts, _, err := r.contactRepo.GetContracts(network(c))
 	if err != nil {
 		msg := fmt.Sprintf("Failed to get contracts")
 

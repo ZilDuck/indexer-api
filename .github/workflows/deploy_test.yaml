@@ -27,7 +27,7 @@ jobs:
 
       - uses: microsoft/variable-substitution@v1
         with:
-          files: './config/testnet.yaml'
+          files: './config/test.yaml'
         env:
           AWS_ES_ACCESS_KEY: ${{ secrets.AWS_ES_ACCESS_KEY_ID }}
           AWS_ES_SECRET_KEY: ${{ secrets.AWS_ES_SECRET_ACCESS_KEY }}
@@ -35,7 +35,7 @@ jobs:
 
       - name: Copy Config
         run: |
-          cp ./config/testnet.yaml ./build/.env
+          cp ./config/test.yaml ./build/.env
 
       - name: Zip package
         run: cd build && zip -r ../upload.zip .

@@ -1,9 +1,9 @@
-name: Deploy mainnet
+name: Deploy testnet
 
 on:
   push:
     branches:
-      - master
+      - develop
 
 jobs:
   build:
@@ -27,15 +27,15 @@ jobs:
 
       - uses: microsoft/variable-substitution@v1
         with:
-          files: './config/mainnet.yaml'
+          files: './config/test.yaml'
         env:
           AWS_ES_ACCESS_KEY: ${{ secrets.AWS_ES_ACCESS_KEY_ID }}
           AWS_ES_SECRET_KEY: ${{ secrets.AWS_ES_SECRET_ACCESS_KEY }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
-      - name: Mainnet config
+      - name: Copy Config
         run: |
-          cp ./config/mainnet.yaml ./build/.env
+          cp ./config/test.yaml ./build/.env
 
       - name: Zip package
         run: cd build && zip -r ../upload.zip .
@@ -48,4 +48,4 @@ jobs:
           aws-region: us-east-1
 
       - name: Upload to lambda
-        run: aws lambda update-function-code --zip-file fileb://upload.zip --function-name indexer-api
+        run: aws lambda update-function-code --zip-file fileb://upload.zip --function-name indexer-api-testnet

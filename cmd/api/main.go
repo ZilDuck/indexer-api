@@ -22,12 +22,12 @@ func main() {
 
 	if inLambda() {
 		zap.L().Info("Running lambda")
-		if err := gateway.ListenAndServe(fmt.Sprintf(":%d", config.Get().ApiPort), setupRouter()); err != nil {
+		if err := gateway.ListenAndServe(fmt.Sprintf(":%d", config.Get().Port), setupRouter()); err != nil {
 			zap.L().With(zap.Error(err)).Fatal("Failed to execute gateway")
 		}
 	} else {
 		zap.L().Info("Running naked")
-		if err := http.ListenAndServe(fmt.Sprintf(":%d", config.Get().ApiPort), setupRouter()); err != nil {
+		if err := http.ListenAndServe(fmt.Sprintf(":%d", config.Get().Port), setupRouter()); err != nil {
 			zap.L().With(zap.Error(err)).Fatal("Failed to execute lambda")
 		}
 	}

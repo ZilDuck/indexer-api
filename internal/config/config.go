@@ -11,8 +11,7 @@ import (
 
 type Config struct {
 	Env           string
-	ApiPort       int
-	DashboardPort int
+	Port          int
 	Debug         bool
 	ElasticSearch ElasticSearchConfig
 	Aws           AwsConfig
@@ -69,11 +68,10 @@ func initSentry() {
 
 func Get() *Config {
 	return &Config{
-		Env:           getString("ENV", ""),
-		ApiPort:       getInt("API_PORT", 8082),
-		DashboardPort: getInt("DASHBOARD_PORT", 9200),
-		Debug:         getBool("DEBUG", false),
-		SentryDsn:     getString("SENTRY_DSN", ""),
+		Env:       getString("ENV", ""),
+		Port:      getInt("PORT", 8082),
+		Debug:     getBool("DEBUG", false),
+		SentryDsn: getString("SENTRY_DSN", ""),
 		Aws: AwsConfig{
 			AccessKey: getString("AWS_ES_ACCESS_KEY", ""),
 			SecretKey: getString("AWS_ES_SECRET_KEY", ""),

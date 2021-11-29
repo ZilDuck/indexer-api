@@ -50,7 +50,7 @@ func setupRouter() *gin.Engine {
 		r.GET("/contract/:contractAddr/nfts", resource.NewNftResource(container.GetNftRepository()).GetContractNfts)
 	}
 
-	r.GET("/nfts/:ownerAddr", resource.NewNftResource(container.GetNftRepository()).GetNftsOwnedByAddress)
+	r.GET("/wallets/:ownerAddr", resource.NewNftResource(container.GetNftRepository()).GetNftsOwnedByAddress)
 
 	return r
 }

@@ -9,7 +9,7 @@ import (
 )
 
 type NftRepository interface {
-	GetForAddress(network, ownerAddr string, size, page int) ([]entity.NFT, int64, error)
+	GetForAddress(network, ownerAddr string) ([]entity.NftOwner, error)
 	GetForContract(network, contractAddr string, size, page int) ([]entity.NFT, int64, error)
 }
 
@@ -25,23 +25,43 @@ func NewNftRepository(elastic elastic_cache.Index) NftRepository {
 	return nftRepository{elastic: elastic}
 }
 
-func (nftRepo nftRepository) GetForAddress(network, ownerAddr string, size, page int) ([]entity.NFT, int64, error) {
+func (nftRepo nftRepository) GetForAddress(network, ownerAddr string) ([]entity.NftOwner, error) {
+	contracts := make([]entity.NftOwner, 0)
+
 	query := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("owner.keyword", ownerAddr),
 		elastic.NewTermQuery("burnedAt", 0),
 	)
 
-	from := size*page - size
+	agg := elastic.NewFilterAggregation().Filter(query).
+		SubAggregation("contract", elastic.NewTermsAggregation().Field("contract.keyword").Size(10000).
+			SubAggregation("tokenId", elastic.NewTermsAggregation().Field("tokenId").Size(10000)))
 
-	result, err := search(nftRepo.elastic.Client.
+	results, err := search(nftRepo.elastic.Client.
 		Search(elastic_cache.NftIndex.Get(network)).
-		Query(query).
-		Sort("tokenId", true).
-		Size(size).
-		From(from).
-		TrackTotalHits(true))
+		Aggregation("owner", agg).
+		Size(0))
 
-	return nftRepo.findMany(result, err)
+	if err != nil {
+		return contracts, err
+	}
+
+	if ownerAgg, found := results.Aggregations.Filter("owner"); found {
+		if contractAgg, found := ownerAgg.Aggregations.Terms("contract"); found {
+			for _, contractsBucket := range contractAgg.Buckets {
+				contract := entity.NftOwner{Address: contractsBucket.Key.(string)}
+
+				if tokenIdBucket, found := contractsBucket.Terms("tokenId"); found {
+					for _, tokenId := range tokenIdBucket.Buckets {
+						contract.TokenIds = append(contract.TokenIds, uint64(tokenId.Key.(float64)))
+					}
+				}
+				contracts = append(contracts, contract)
+			}
+		}
+	}
+
+	return contracts, nil
 }
 
 func (nftRepo nftRepository) GetForContract(network, contractAddr string, size, page int) ([]entity.NFT, int64, error) {

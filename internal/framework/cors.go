@@ -1,15 +1,16 @@
 package framework
 
 import (
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
-func Cors() gin.HandlerFunc {
-	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	config.AllowHeaders = append(config.AllowHeaders, "Network")
-	config.ExposeHeaders = append(config.AllowHeaders, "X-Network", "X-Pagination")
+func Cors(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-	return cors.New(config)
+	if c.Request.Method == "OPTIONS" {
+		c.AbortWithStatus(204)
+		return
+	}
+
+	c.Next()
 }

@@ -7,7 +7,6 @@ require (
 	github.com/apex/gateway v1.1.2
 	github.com/aws/aws-sdk-go v1.42.7
 	github.com/getsentry/sentry-go v0.11.0
-	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/gzip v0.0.3
 	github.com/gin-gonic/gin v1.7.4
 	github.com/joho/godotenv v1.4.0

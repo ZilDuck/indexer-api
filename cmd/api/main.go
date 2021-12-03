@@ -40,7 +40,7 @@ func setupRouter() *gin.Engine {
 	r.Use(gzip.Gzip(gzip.DefaultCompression))
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.Use(framework.Cors())
+	r.Use(framework.Cors)
 	r.Use(framework.Options)
 	r.Use(framework.ErrorHandler)
 

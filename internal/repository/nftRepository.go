@@ -33,9 +33,14 @@ func (nftRepo nftRepository) GetForAddress(network, ownerAddr string) ([]entity.
 		elastic.NewTermQuery("burnedAt", 0),
 	)
 
+	contractAgg := elastic.NewTermsAggregation().Field("contract.keyword").Size(10000).
+		SubAggregation("tokenId", elastic.NewTermsAggregation().Field("tokenId").Size(10000))
+
 	agg := elastic.NewFilterAggregation().Filter(query).
-		SubAggregation("contract", elastic.NewTermsAggregation().Field("contract.keyword").Size(10000).
-			SubAggregation("tokenId", elastic.NewTermsAggregation().Field("tokenId").Size(10000)))
+		SubAggregation("zrc6", elastic.NewFilterAggregation().Filter(elastic.NewTermQuery("zrc6", true)).
+			SubAggregation("contract", contractAgg)).
+		SubAggregation("zrc1", elastic.NewFilterAggregation().Filter(elastic.NewTermQuery("zrc1", true)).
+			SubAggregation("contract", contractAgg))
 
 	results, err := search(nftRepo.elastic.Client.
 		Search(elastic_cache.NftIndex.Get(network)).
@@ -47,16 +52,32 @@ func (nftRepo nftRepository) GetForAddress(network, ownerAddr string) ([]entity.
 	}
 
 	if ownerAgg, found := results.Aggregations.Filter("owner"); found {
-		if contractAgg, found := ownerAgg.Aggregations.Terms("contract"); found {
-			for _, contractsBucket := range contractAgg.Buckets {
-				contract := entity.NftOwner{Address: contractsBucket.Key.(string)}
+		if zrc6Agg, found := ownerAgg.Aggregations.Terms("zrc6"); found {
+			if contractAgg, found := zrc6Agg.Aggregations.Terms("contract"); found {
+				for _, contractsBucket := range contractAgg.Buckets {
+					contract := entity.NftOwner{Address: contractsBucket.Key.(string), ZRC6: true}
 
-				if tokenIdBucket, found := contractsBucket.Terms("tokenId"); found {
-					for _, tokenId := range tokenIdBucket.Buckets {
-						contract.TokenIds = append(contract.TokenIds, uint64(tokenId.Key.(float64)))
+					if tokenIdBucket, found := contractsBucket.Terms("tokenId"); found {
+						for _, tokenId := range tokenIdBucket.Buckets {
+							contract.TokenIds = append(contract.TokenIds, uint64(tokenId.Key.(float64)))
+						}
 					}
+					contracts = append(contracts, contract)
 				}
-				contracts = append(contracts, contract)
+			}
+		}
+		if zrc1Agg, found := ownerAgg.Aggregations.Terms("zrc1"); found {
+			if contractAgg, found := zrc1Agg.Aggregations.Terms("contract"); found {
+				for _, contractsBucket := range contractAgg.Buckets {
+					contract := entity.NftOwner{Address: contractsBucket.Key.(string), ZRC6: false}
+
+					if tokenIdBucket, found := contractsBucket.Terms("tokenId"); found {
+						for _, tokenId := range tokenIdBucket.Buckets {
+							contract.TokenIds = append(contract.TokenIds, uint64(tokenId.Key.(float64)))
+						}
+					}
+					contracts = append(contracts, contract)
+				}
 			}
 		}
 	}

@@ -15,5 +15,5 @@ type NFT struct {
 
 	Owner string `json:"owner"`
 
-	BurnedAt uint64 `json:"burnedAt"`
+	BurnedAt uint64 `json:"burnedAt,omitempty"`
 }

@@ -45,7 +45,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_DEPLOYMENT_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_DEPLOYMENT_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: eu-west-1
 
       - name: Upload to lambda
-        run: aws lambda update-function-code --zip-file fileb://upload.zip --function-name indexer-api-testnet
+        run: aws lambda update-function-code --zip-file fileb://upload.zip --function-name zilkroad-api-test

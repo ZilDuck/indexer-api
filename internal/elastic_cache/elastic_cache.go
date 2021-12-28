@@ -27,7 +27,7 @@ func newClient(elasticConfig config.ElasticSearchConfig, awsConfig config.AwsCon
 
 	opts := []elastic.ClientOptionFunc{
 		//elastic.SetURL(elasticConfig.Host),
-		elastic.SetURL("https://search-zilkroad-index-wlmccxpkwz6ps7sohqqjvdphqa.us-east-1.es.amazonaws.com"),
+		elastic.SetURL("https://search-zilkroad-index-5yazp27hjzc6jrl4cuqw5t6nau.eu-west-1.es.amazonaws.com"),
 		elastic.SetSniff(elasticConfig.Sniff),
 		elastic.SetHealthcheck(elasticConfig.HealthCheck),
 	}

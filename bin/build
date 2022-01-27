@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -e
+
+if [ $# -eq 0 ]
+  then
+    tag="latest"
+  else
+    tag=$1
+fi
+
+echo "Using tag $tag"
+
+./bin/di
+
+docker build . -t zilkroad/nft-api:$tag
+

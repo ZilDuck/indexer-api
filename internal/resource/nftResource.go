@@ -2,19 +2,126 @@ package resource
 
 import (
 	"fmt"
+	"github.com/ZilDuck/indexer-api/internal/mapper"
+	"github.com/ZilDuck/indexer-api/internal/metadata"
 	"github.com/ZilDuck/indexer-api/internal/repository"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
 type NftResource struct {
-	nftRepo repository.NftRepository
+	nftRepo      repository.NftRepository
+	metadata     metadata.Service
 }
 
-func NewNftResource(nftRepo repository.NftRepository) NftResource {
-	return NftResource{nftRepo}
+func NewNftResource(nftRepo repository.NftRepository, metadata metadata.Service) NftResource {
+	return NftResource{nftRepo, metadata}
+}
+
+func (r NftResource) GetContractNfts(c *gin.Context) {
+	contractAddr := strings.ToLower(c.Param("contractAddr"))
+
+	nfts, _, err := r.nftRepo.GetForContract(network(c), contractAddr, 10000, 1)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to get nfts for contract: %s", contractAddr)
+		zap.L().With(zap.Error(err)).Error(msg)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": msg, "status": http.StatusInternalServerError})
+		return
+	}
+
+	c.Header("Cache-Control", "max-age=60")
+	c.JSON(200, mapper.NftEntitysToDtos(nfts))
+}
+
+func (r NftResource) GetContractNft(c *gin.Context) {
+	contractAddr := strings.ToLower(c.Param("contractAddr"))
+	tokenId, err := strconv.ParseUint(c.Param("tokenId"), 0, 64)
+	if err != nil {
+		msg := fmt.Sprintf("Invalid token id: %s", c.Param("tokenId"))
+		zap.L().With(zap.Error(err)).Error(msg)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": msg, "status": http.StatusBadRequest})
+		return
+	}
+
+	nft, err := r.nftRepo.GetForContractByTokenId(network(c), contractAddr, tokenId)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to get %d nft for contract: %s", tokenId, contractAddr)
+		zap.L().With(zap.Error(err)).Error(msg)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": msg, "status": http.StatusInternalServerError})
+		return
+	}
+
+	c.Header("Cache-Control", "max-age=60")
+	c.JSON(200, mapper.NftEntityToDto(*nft))
+}
+
+func (r NftResource) GetContractNftMetadata(c *gin.Context) {
+	contractAddr := strings.ToLower(c.Param("contractAddr"))
+	tokenId, err := strconv.ParseUint(c.Param("tokenId"), 0, 64)
+	if err != nil {
+		msg := fmt.Sprintf("Invalid token id: %s", c.Param("tokenId"))
+		zap.L().With(zap.Error(err)).Error(msg)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": msg, "status": http.StatusBadRequest})
+		return
+	}
+
+	nft, err := r.nftRepo.GetForContractByTokenId(network(c), contractAddr, tokenId)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to get %d nft of contract: %s", tokenId, contractAddr)
+		zap.L().With(zap.Error(err)).Error(msg)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": msg, "status": http.StatusInternalServerError})
+		return
+	}
+
+	md, err := r.metadata.GetZrc6Metadata(*nft)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to get metadata for %d nft of contract: %s", tokenId, contractAddr)
+		zap.L().With(zap.Error(err)).Error(msg)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": msg, "status": http.StatusInternalServerError})
+		return
+	}
+
+	c.Header("Cache-Control", "max-age=60")
+	c.JSON(200, md)
+}
+
+func (r NftResource) GetContractNftAsset(c *gin.Context) {
+	contractAddr := strings.ToLower(c.Param("contractAddr"))
+	tokenId, err := strconv.ParseUint(c.Param("tokenId"), 0, 64)
+	if err != nil {
+		msg := fmt.Sprintf("Invalid token id: %s", c.Param("tokenId"))
+		zap.L().With(zap.Error(err)).Error(msg)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	nft, err := r.nftRepo.GetForContractByTokenId(network(c), contractAddr, tokenId)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to get %d nft of contract: %s", tokenId, contractAddr)
+		zap.L().With(zap.Error(err)).Error(msg)
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if nft.MediaUri == "" {
+		msg := fmt.Sprintf("Asset not: %s", c.Param("tokenId"))
+		zap.L().With(zap.Error(err)).Error(msg)
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	media, contentType, err := r.metadata.GetZrc6Media(*nft)
+	if err != nil {
+		zap.L().With(zap.Error(err)).Error("failed to get zrc6 media")
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
+	c.Header("Cache-Control", "max-age=60")
+	c.Data(http.StatusOK, contentType, media)
 }
 
 func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
@@ -23,41 +130,11 @@ func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 	contracts, err := r.nftRepo.GetForAddress(network(c), ownerAddr)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr)
-
 		zap.L().With(zap.Error(err)).Error(msg)
-
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			gin.H{"message": msg, "status": http.StatusInternalServerError},
-		)
-
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": msg, "status": http.StatusInternalServerError})
 		return
 	}
 
 	c.Header("Cache-Control", "max-age=60")
-
 	c.JSON(200, contracts)
-}
-
-func (r NftResource) GetContractNfts(c *gin.Context) {
-	contractAddr := strings.ToLower(c.Param("contractAddr"))
-
-	nfts, total, err := r.nftRepo.GetForContract(network(c), contractAddr, 10000, 1)
-	if err != nil {
-		msg := fmt.Sprintf("Failed to get nfts for contract: %s", contractAddr)
-
-		zap.L().With(zap.Error(err)).Error(msg)
-
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			gin.H{"message": msg, "status": http.StatusInternalServerError},
-		)
-
-		return
-	}
-	zap.S().Infof("Found %d NFT For %s", total, contractAddr)
-
-	c.Header("Cache-Control", "max-age=60")
-
-	c.JSON(200, nfts)
 }

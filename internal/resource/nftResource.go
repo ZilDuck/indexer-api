@@ -128,6 +128,7 @@ func (r NftResource) GetContractNftAsset(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
+	zap.L().With(zap.String("contractAddr", contractAddr), zap.Uint64("tokenId", tokenId)).Info("Serving binary content")
 
 	c.Header("Cache-Control", "max-age=60")
 	c.Data(http.StatusOK, contentType, buf.Bytes())

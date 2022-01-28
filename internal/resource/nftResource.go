@@ -1,6 +1,8 @@
 package resource
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
 	"github.com/ZilDuck/indexer-api/internal/mapper"
 	"github.com/ZilDuck/indexer-api/internal/metadata"
@@ -107,7 +109,7 @@ func (r NftResource) GetContractNftAsset(c *gin.Context) {
 	}
 
 	if nft.MediaUri == "" {
-		msg := fmt.Sprintf("Asset not: %s", c.Param("tokenId"))
+		msg := fmt.Sprintf("Asset not found: %s", c.Param("tokenId"))
 		zap.L().With(zap.Error(err)).Error(msg)
 		c.AbortWithStatus(http.StatusNotFound)
 		return
@@ -120,8 +122,15 @@ func (r NftResource) GetContractNftAsset(c *gin.Context) {
 		return
 	}
 
+	var buf bytes.Buffer
+	if err := binary.Write(&buf, binary.BigEndian, media); err != nil {
+		zap.L().With(zap.Error(err)).Error("failed to encode zrc6 media")
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+
 	c.Header("Cache-Control", "max-age=60")
-	c.Data(http.StatusOK, contentType, media)
+	c.Data(http.StatusOK, contentType, buf.Bytes())
 }
 
 func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {

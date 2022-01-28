@@ -3,7 +3,9 @@ package di
 import (
 	"github.com/ZilDuck/indexer-api/internal/config"
 	"github.com/ZilDuck/indexer-api/internal/elastic_cache"
+	"github.com/ZilDuck/indexer-api/internal/metadata"
 	"github.com/ZilDuck/indexer-api/internal/repository"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/sarulabs/dingo/v4"
 	"go.uber.org/zap"
 )
@@ -30,6 +32,15 @@ var Definitions = []dingo.Def{
 		Name: "nft.repository",
 		Build: func(elastic elastic_cache.Index) (repository.NftRepository, error) {
 			return repository.NewNftRepository(elastic), nil
+		},
+	},
+	{
+		Name: "metadata.service",
+		Build: func() (metadata.Service, error) {
+			retryClient := retryablehttp.NewClient()
+			retryClient.RetryMax = 3
+
+			return metadata.NewMetadataService(retryClient), nil
 		},
 	},
 }

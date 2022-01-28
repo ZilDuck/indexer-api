@@ -1,19 +1,21 @@
-package entity
+package dto
+
+type NftType string
+
+const (
+	Zrc1 NftType = "Zrc1"
+	Zrc6 NftType = "Zrc6"
+)
 
 type Nft struct {
 	Contract string `json:"contract"`
-	TxID     string `json:"txId"`
-	BlockNum uint64 `json:"blockNum"`
-
 	Name     string `json:"name"`
 	Symbol   string `json:"symbol"`
-	TokenId  uint64 `json:"tokenId"`
-	BaseUri  string `json:"baseUri"`
-	TokenUri string `json:"tokenUri"`
-	MediaUri string `json:"mediaUri"`
 
-	Zrc1 bool `json:"zrc1"`
-	Zrc6 bool `json:"zrc6"`
+	TokenId  uint64 `json:"tokenId"`
+	TokenUri string `json:"tokenUri"`
+
+	Type NftType `json:"type"`
 
 	Owner string `json:"owner"`
 

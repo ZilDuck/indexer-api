@@ -44,13 +44,16 @@ func setupRouter() *gin.Engine {
 	r.Use(framework.Options)
 	r.Use(framework.ErrorHandler)
 
-	if !inLambda() {
-		r.GET("/contract", resource.NewContractResource(container.GetContractRepository()).GetContracts)
-		r.GET("/contract/:contractAddr", resource.NewContractResource(container.GetContractRepository()).GetContract)
-		r.GET("/contract/:contractAddr/nfts", resource.NewNftResource(container.GetNftRepository()).GetContractNfts)
-	}
+	contractResource := resource.NewContractResource(container.GetContractRepository())
+	r.GET("/contract/:contractAddr", contractResource.GetContract)
 
-	r.GET("/wallets/:ownerAddr", resource.NewNftResource(container.GetNftRepository()).GetNftsOwnedByAddress)
+	nftResource := resource.NewNftResource(container.GetNftRepository(), container.GetMetadataService())
+	r.GET("/nft/:contractAddr", nftResource.GetContractNfts)
+	r.GET("/nft/:contractAddr/:tokenId", nftResource.GetContractNft)
+	r.GET("/nft/:contractAddr/:tokenId/metadata", nftResource.GetContractNftMetadata)
+	r.GET("/nft/:contractAddr/:tokenId/asset", nftResource.GetContractNftAsset)
+
+	r.GET("/wallets/:ownerAddr", nftResource.GetNftsOwnedByAddress)
 
 	return r
 }

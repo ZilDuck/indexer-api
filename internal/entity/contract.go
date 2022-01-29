@@ -12,4 +12,5 @@ type Contract struct {
 	Transitions     []string `json:"transitions"`
 	ZRC1            bool     `json:"zrc1"`
 	ZRC6            bool     `json:"zrc6"`
+	BaseUri         string   `json:"baseuri"`
 }

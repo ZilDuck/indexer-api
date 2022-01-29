@@ -1,5 +1,9 @@
 package entity
 
+import (
+	"fmt"
+)
+
 type Nft struct {
 	Contract string `json:"contract"`
 	TxID     string `json:"txId"`
@@ -18,4 +22,12 @@ type Nft struct {
 	Owner string `json:"owner"`
 
 	BurnedAt uint64 `json:"burnedAt,omitempty"`
+}
+
+func (n Nft) MetadataUri() string {
+	if n.TokenUri != "" {
+		return n.TokenUri
+	}
+
+	return fmt.Sprintf("%s%d", n.BaseUri, n.TokenId)
 }

@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"fmt"
 	"github.com/ZilDuck/indexer-api/internal/dto"
 	"github.com/ZilDuck/indexer-api/internal/entity"
 )
@@ -32,11 +31,7 @@ func NftEntityToDto(e entity.Nft) dto.Nft {
 
 	if e.Zrc6 == true {
 		nft.Type = dto.Zrc6
-		if e.TokenUri != "" {
-			nft.TokenUri = e.TokenUri
-		} else {
-			nft.TokenUri = fmt.Sprintf("%s%d", e.BaseUri, e.TokenId)
-		}
+		nft.TokenUri = e.MetadataUri()
 	}
 
 	return nft

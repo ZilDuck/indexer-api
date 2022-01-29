@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/ZilDuck/indexer-api/internal/entity"
 	"github.com/hashicorp/go-retryablehttp"
 )
@@ -23,7 +22,7 @@ func NewMetadataService(client *retryablehttp.Client) Service {
 }
 
 func (s service) GetZrc6Metadata(nft entity.Nft) (interface{}, error) {
-	resp, err := retryablehttp.Get(fmt.Sprintf("%s%d", nft.TokenUri, nft.TokenId))
+	resp, err := retryablehttp.Get(nft.MetadataUri())
 	if err != nil {
 		return nil, err
 	}

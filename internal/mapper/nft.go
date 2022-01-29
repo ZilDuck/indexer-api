@@ -32,7 +32,11 @@ func NftEntityToDto(e entity.Nft) dto.Nft {
 
 	if e.Zrc6 == true {
 		nft.Type = dto.Zrc6
-		nft.TokenUri = fmt.Sprintf("%s%d", e.TokenUri, e.TokenId)
+		if e.TokenUri != "" {
+			nft.TokenUri = e.TokenUri
+		} else {
+			nft.TokenUri = fmt.Sprintf("%s%d", e.BaseUri, e.TokenId)
+		}
 	}
 
 	return nft

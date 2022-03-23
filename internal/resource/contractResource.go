@@ -60,6 +60,7 @@ func (r ContractResource) GetAttributes(c *gin.Context) {
 	}
 
 	jsonResponse(c, attributes)
+	c.Header("Cache-Control", "max-age=60")
 }
 
 func (r ContractResource) GetContractsOwnedByAddress(c *gin.Context) {
@@ -83,5 +84,5 @@ func (r ContractResource) GetContractsOwnedByAddress(c *gin.Context) {
 		}
 		jsonResponse(c, contractAddrs)
 	}
-	c.Header("Cache-Control", "no-cache")
+	c.Header("Cache-Control", "max-age=60")
 }

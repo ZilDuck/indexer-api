@@ -20,6 +20,8 @@ func (r HealthResource) HealthCheck(c *gin.Context) {
 	health := dto.HealthCheck{}
 	health.Up(r.elasticSearchHealth())
 
+	c.Header("Cache-Control", "no-store")
+
 	if health.Healthy() {
 		c.JSON(http.StatusOK, health)
 	} else {

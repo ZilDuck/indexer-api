@@ -108,8 +108,8 @@ func (r NftResource) GetContractNftActions(c *gin.Context) {
 		return
 	}
 
-	c.Header("Cache-Control", "no-cache")
 	c.JSON(200, mapper.ActionsToDtos(actions))
+	c.Header("Cache-Control", "max-age=60")
 }
 
 func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
@@ -123,8 +123,8 @@ func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 		return
 	}
 
-	c.Header("Cache-Control", "no-cache")
 	c.JSON(200, nfts)
+	c.Header("Cache-Control", "max-age=60")
 }
 
 func (r NftResource) RefreshMetadata(c *gin.Context) {
@@ -145,8 +145,8 @@ func (r NftResource) RefreshMetadata(c *gin.Context) {
 	}
 	message.Sent = true
 
-	c.Header("Cache-Control", "no-store")
 	c.JSON(200, message)
+	c.Header("Cache-Control", "max-age=60")
 }
 
 func (r NftResource) getContractAndTokenId(c *gin.Context) (*string, *uint64, error) {

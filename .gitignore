@@ -1,0 +1,6 @@
+.env
+/build
+/generated
+/logs
+/var
+/vendor

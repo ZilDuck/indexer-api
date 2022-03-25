@@ -13,6 +13,9 @@ func handleError(c *gin.Context, err error, msg string, status int) {
 }
 
 func jsonResponse(c *gin.Context, object interface{}) {
-	c.Header("Cache-Control", "no-cache")
+	if c.GetHeader("Cache-Control") == "" {
+		c.Header("Cache-Control", "max-age=60")
+	}
+
 	c.JSON(200, object)
 }

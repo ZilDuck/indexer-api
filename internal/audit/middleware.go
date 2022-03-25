@@ -2,6 +2,8 @@ package audit
 
 import (
 	"encoding/json"
+	"github.com/ZilDuck/indexer-api/internal/entity"
+	"github.com/ZilDuck/indexer-api/internal/helpers"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"os"
@@ -10,17 +12,25 @@ import (
 
 var mu sync.Mutex
 
-func Audit(c *gin.Context) {
-	apiKey := c.Request.Header.Get("X-API-KEY")
+func Handler(c *gin.Context) {
+	apiKey := helpers.ApiKey(c)
 	uri := c.Request.RequestURI
 
 	zap.L().With(zap.String("apiKey", apiKey), zap.String("request", uri)).Info("Audit")
 
-	audit := map[string]interface{}{}
-	audit["apiKey"] = apiKey
-	audit["request"] = uri
-	audit["remoteAddr"] = c.Request.RemoteAddr
-	audit["referer"] = c.Request.Referer()
+	audit := entity.Audit{
+		ApiKey:     apiKey,
+		Request:    uri,
+		Network:    helpers.Network(c),
+	}
+
+	if c.Request.Header.Get("Cf-Connecting-Ip") != "" {
+		audit.RemoteAddr = c.Request.Header.Get("Cf-Connecting-Ip")
+	} else if c.Request.Header.Get("X-Forwarded-For") != "" {
+		audit.RemoteAddr = c.Request.Header.Get("X-Forwarded-For")
+	} else {
+		audit.RemoteAddr = c.Request.RemoteAddr
+	}
 
 	data, err := json.Marshal(audit)
 	if err != nil {

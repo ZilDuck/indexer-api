@@ -33,6 +33,7 @@ func (actionRepo nftActionRepository) GetByContractAndTokenId(network, contractA
 	result, err := search(actionRepo.elastic.Client.
 		Search(elastic_search.NftActionIndex.Get(network)).
 		Query(query).
+		TrackTotalHits(true).
 		Sort("blockNum", true))
 
 	return actionRepo.findMany(result, err)

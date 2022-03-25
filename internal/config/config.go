@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/ZilDuck/indexer-api/internal/auth"
 	"github.com/ZilDuck/indexer-api/internal/log"
 	"github.com/joho/godotenv"
 	"os"
@@ -16,6 +15,7 @@ type Config struct {
 	Port          int
 	Debug         bool
 	ElasticSearch ElasticSearchConfig
+	DBConfig      DBConfig
 	Aws           AwsConfig
 	CdnHost       string
 	AuditDir      string
@@ -38,9 +38,9 @@ type ElasticSearchConfig struct {
 	Password    string
 }
 
-type ThrottleConfig struct {
-	MaxEventsPerSec int
-	MaxBurstSize    int
+type DBConfig struct {
+	ConnString string
+	LogMode    bool
 }
 
 func Init() {
@@ -50,7 +50,6 @@ func Init() {
 	}
 
 	log.NewLogger(Get().Debug)
-	auth.LoadApiClients(Get().ApiClients)
 }
 
 func Get() *Config {
@@ -72,6 +71,10 @@ func Get() *Config {
 				Debug:       getBool("ELASTIC_SEARCH_DEBUG", false),
 				Username:    getString("ELASTIC_SEARCH_USERNAME", ""),
 				Password:    getString("ELASTIC_SEARCH_PASSWORD", ""),
+			},
+			DBConfig: DBConfig{
+				ConnString: getString("DB_CONN_STRING", ""),
+				LogMode:    getBool("DB_LOG_MODE", false),
 			},
 			CdnHost:    getString("CDN_HOST", ""),
 			AuditDir:   getString("AUDIT_DIR", "/app/audit"),

@@ -1,36 +1,26 @@
 package auth
 
 import (
-	"encoding/json"
 	"errors"
-	"time"
+	"github.com/google/uuid"
 )
 
-var clients []ApiClient
+var clients []Client
 
 var ErrNoClientFound = errors.New("no auth clients configured")
 
-type ApiClient struct {
-	ApiKey   string        `json:"key"`
-	Duration time.Duration `json:"duration"`
-	Capacity int64         `json:"capacity"`
+type Client struct {
+	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	Username string    `json:"username"`
+	ApiKey   string `json:"key"`
+	Active   bool      `json:"status"`
 }
 
-func LoadApiClients(data []string) {
-	clients = make([]ApiClient, 0)
-	for idx := range data {
-		client := ApiClient{}
-		if err := json.Unmarshal([]byte(data[idx]), &client); err == nil {
-			clients = append(clients, client)
-		}
-	}
-}
-
-func GetApiClients() []ApiClient {
+func GetApiClients() []Client {
 	return clients
 }
 
-func GetApiClient(apiKey string) (*ApiClient, error) {
+func GetApiClient(apiKey string) (*Client, error) {
 	clients := GetApiClients()
 
 	if len(clients) == 0 {

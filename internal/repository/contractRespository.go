@@ -12,8 +12,6 @@ type ContactRepository interface {
 	GetAll(network string) ([]entity.Contract, int64, error)
 	GetContract(network, contractAddr string) (*entity.Contract, error)
 	GetContracts(network string, contractAddrs ...string) ([]entity.Contract, error)
-	GetAllOwnedBy(network string, ownerAddr string) ([]entity.Contract, error)
-	GetAllAddressesOwnedBy(network string, ownerAddr string) ([]string, error)
 }
 
 type contactRepository struct {
@@ -33,6 +31,7 @@ func (contractRepo contactRepository) GetAll(network string) ([]entity.Contract,
 		Search(elastic_search.ContractIndex.Get(network)).
 		Query(elastic.NewTermQuery("zrc6", true)).
 		Sort("blockNum", false).
+		TrackTotalHits(true).
 		Size(100))
 
 	return contractRepo.findMany(result, err)
@@ -57,66 +56,11 @@ func (contractRepo contactRepository) GetContracts(network string, contractAddrs
 		Search(elastic_search.ContractIndex.Get(network)).
 		Query(elastic.NewTermsQuery("address.keyword", values...)).
 		Sort("blockNum", false).
+		TrackTotalHits(true).
 		Size(100))
 
 	contracts, _, err := contractRepo.findMany(result, err)
 	return contracts, err
-}
-
-func (contractRepo contactRepository) GetAllOwnedBy(network string, ownerAddr string) ([]entity.Contract, error) {
-	query := elastic.NewNestedQuery("state", elastic.NewBoolQuery().Should(
-		elastic.NewBoolQuery().Must(
-			elastic.NewTermQuery("state.key.keyword", "owner"),
-			elastic.NewTermQuery("state.value.keyword", ownerAddr),
-		),
-		elastic.NewBoolQuery().Must(
-			elastic.NewTermQuery("state.key.keyword", "contractOwner"),
-			elastic.NewTermQuery("state.value.keyword", ownerAddr),
-		),
-	).MinimumShouldMatch("1"))
-
-	result, err := search(contractRepo.elastic.Client.
-		Search(elastic_search.ContractIndex.Get(network)).
-		Query(query).
-		Size(1000))
-	if err != nil {
-		return nil, err
-	}
-
-	contracts, _, err := contractRepo.findMany(result, err)
-
-	return contracts, err
-}
-
-func (contractRepo contactRepository) GetAllAddressesOwnedBy(network string, ownerAddr string) ([]string, error) {
-	query := elastic.NewNestedQuery("state", elastic.NewBoolQuery().Should(
-		elastic.NewBoolQuery().Must(
-			elastic.NewTermQuery("state.key.keyword", "owner"),
-			elastic.NewTermQuery("state.value.keyword", ownerAddr),
-		),
-		elastic.NewBoolQuery().Must(
-			elastic.NewTermQuery("state.key.keyword", "contractOwner"),
-			elastic.NewTermQuery("state.value.keyword", ownerAddr),
-		),
-	).MinimumShouldMatch("1"))
-
-	result, err := search(contractRepo.elastic.Client.
-		Search(elastic_search.ContractIndex.Get(network)).
-		Query(query).
-		Aggregation("contractAddr", elastic.NewTermsAggregation().Field("address.keyword")).
-		Size(0))
-	if err != nil {
-		return nil, err
-	}
-
-	contracts := make([]string, 0)
-	if buckets, found := result.Aggregations.Terms("contractAddr"); found {
-		for _, contractAddr := range buckets.Buckets {
-			contracts = append(contracts, contractAddr.Key.(string))
-		}
-	}
-
-	return contracts, nil
 }
 
 func (contractRepo contactRepository) findOne(results *elastic.SearchResult, err error) (*entity.Contract, error) {

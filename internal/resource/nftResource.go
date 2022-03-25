@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ZilDuck/indexer-api/internal/framework"
+	"github.com/ZilDuck/indexer-api/internal/helpers"
 	"github.com/ZilDuck/indexer-api/internal/mapper"
 	"github.com/ZilDuck/indexer-api/internal/messenger"
 	"github.com/ZilDuck/indexer-api/internal/metadata"
@@ -38,10 +39,9 @@ func (r NftResource) GetContractNfts(c *gin.Context) {
 		handleError(c, err, "Invalid pagination parameters", http.StatusBadRequest)
 	}
 
-	nfts, total, err := r.nftRepo.GetForContract(network(c), contractAddr, pagination.Size, pagination.Offset)
+	nfts, total, err := r.nftRepo.GetForContract(helpers.Network(c), contractAddr, pagination.Size, pagination.Offset)
 	if err != nil {
-		msg := fmt.Sprintf("Failed to get nfts for contract: %s", contractAddr)
-		handleError(c, err, msg, http.StatusInternalServerError)
+		handleError(c, err, fmt.Sprintf("Failed to get nfts for contract: %s", contractAddr), http.StatusInternalServerError)
 		return
 	}
 
@@ -57,7 +57,7 @@ func (r NftResource) GetContractNft(c *gin.Context) {
 		return
 	}
 
-	nft, err := r.nftRepo.GetForContractByTokenId(network(c), *contractAddr, *tokenId)
+	nft, err := r.nftRepo.GetForContractByTokenId(helpers.Network(c), *contractAddr, *tokenId)
 	if err != nil {
 		if errors.Is(err, repository.ErrNftNotFound) {
 			handleError(c, err, "NFT not found", http.StatusNotFound)
@@ -77,10 +77,9 @@ func (r NftResource) GetContractNftMetadata(c *gin.Context) {
 		return
 	}
 
-	nft, err := r.nftRepo.GetForContractByTokenId(network(c), *contractAddr, *tokenId)
+	nft, err := r.nftRepo.GetForContractByTokenId(helpers.Network(c), *contractAddr, *tokenId)
 	if err != nil {
-		msg := fmt.Sprintf("Failed to get %d nft of contract: %s", tokenId, *contractAddr)
-		handleError(c, err, msg, http.StatusInternalServerError)
+		handleError(c, err, fmt.Sprintf("Failed to get %d nft of contract: %s", tokenId, *contractAddr), http.StatusInternalServerError)
 		return
 	}
 
@@ -101,10 +100,9 @@ func (r NftResource) GetContractNftActions(c *gin.Context) {
 		return
 	}
 
-	actions, _, err := r.actionRepo.GetByContractAndTokenId(network(c), *contractAddr, *tokenId)
+	actions, _, err := r.actionRepo.GetByContractAndTokenId(helpers.Network(c), *contractAddr, *tokenId)
 	if err != nil {
-		msg := fmt.Sprintf("Failed to get %d nft of contract: %s", *tokenId, *contractAddr)
-		handleError(c, err, msg, http.StatusInternalServerError)
+		handleError(c, err, fmt.Sprintf("Failed to get %d nft of contract: %s", *tokenId, *contractAddr), http.StatusInternalServerError)
 		return
 	}
 
@@ -116,10 +114,9 @@ func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 	ownerAddr := strings.ToLower(c.Param("ownerAddr"))
 	shape := strings.ToUpper(c.DefaultQuery("shape", ""))
 
-	nfts, err := r.nftRepo.GetForAddress(network(c), ownerAddr, shape)
+	nfts, err := r.nftRepo.GetForAddress(helpers.Network(c), ownerAddr, shape)
 	if err != nil {
-		msg := fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr)
-		handleError(c, err, msg, http.StatusInternalServerError)
+		handleError(c, err, fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr), http.StatusInternalServerError)
 		return
 	}
 
@@ -139,14 +136,13 @@ func (r NftResource) RefreshMetadata(c *gin.Context) {
 	}
 
 	msgJson, _ := json.Marshal(message)
-	if err := r.messageService.SendMessage(network(c), messenger.MetadataRefresh, msgJson); err != nil {
-		msg := "Failed to queue metadata refresh"
-		handleError(c, err, msg, http.StatusBadRequest)
+	if err := r.messageService.SendMessage(helpers.Network(c), messenger.MetadataRefresh, msgJson); err != nil {
+		handleError(c, err, "Failed to queue metadata refresh", http.StatusBadRequest)
 	}
 	message.Sent = true
 
 	c.JSON(200, message)
-	c.Header("Cache-Control", "max-age=60")
+	c.Header("Cache-Control", "no-store")
 }
 
 func (r NftResource) getContractAndTokenId(c *gin.Context) (*string, *uint64, error) {

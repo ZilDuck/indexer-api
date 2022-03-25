@@ -37,31 +37,32 @@ func setupRouter() *gin.Engine {
 	r.Use(framework.Options)
 	r.Use(framework.ErrorHandler)
 
-	apigroup := r.Group("/", framework.RateLimiter)
+	auditResource := resource.NewAuditResource(container.GetAuditRepository())
+	r.GET("/audit/status", auditResource.GetStatus)
+	r.GET("/audit/log/:month", auditResource.GetLogsForDate)
 
-	contractResource := resource.NewContractResource(container.GetContractRepository(), container.GetNftRepository())
-	apigroup.GET("/contract/:contractAddr", contractResource.GetContract)
-	apigroup.GET("/contract/:contractAddr/code", contractResource.GetCode)
-	apigroup.GET("/contract/:contractAddr/attributes", contractResource.GetAttributes)
+	contractResource := resource.NewContractResource(container.GetContractRepository(), container.GetContractStateRepository(), container.GetNftRepository())
+	r.GET("/contract/:contractAddr", audit.Handler, contractResource.GetContract)
+	r.GET("/contract/:contractAddr/code", audit.Handler, contractResource.GetCode)
+	r.GET("/contract/:contractAddr/attributes", audit.Handler, contractResource.GetAttributes)
+	r.GET("/contract/:contractAddr/state", audit.Handler, contractResource.GetState)
 
 	nftResource := resource.NewNftResource(container.GetNftRepository(), container.GetActionRepository(), container.GetMessenger(), container.GetMetadataService())
-	apigroup.GET("/nft/:contractAddr", nftResource.GetContractNfts)
-	apigroup.GET("/nft/:contractAddr/:tokenId", nftResource.GetContractNft)
-	apigroup.GET("/nft/:contractAddr/:tokenId/refresh", nftResource.RefreshMetadata)
-	apigroup.GET("/nft/:contractAddr/:tokenId/metadata", nftResource.GetContractNftMetadata)
-	apigroup.GET("/nft/:contractAddr/:tokenId/actions", nftResource.GetContractNftActions)
+	r.GET("/nft/:contractAddr", audit.Handler, nftResource.GetContractNfts)
+	r.GET("/nft/:contractAddr/:tokenId", audit.Handler, nftResource.GetContractNft)
+	r.GET("/nft/:contractAddr/:tokenId/refresh", audit.Handler, nftResource.RefreshMetadata)
+	r.GET("/nft/:contractAddr/:tokenId/metadata", audit.Handler, nftResource.GetContractNftMetadata)
+	r.GET("/nft/:contractAddr/:tokenId/actions", audit.Handler, nftResource.GetContractNftActions)
 
-	apigroup.GET("/address/:ownerAddr/nft", nftResource.GetNftsOwnedByAddress)
-	apigroup.GET("/address/:ownerAddr/contract", contractResource.GetContractsOwnedByAddress)
+	r.GET("/address/:ownerAddr/nft", audit.Handler, nftResource.GetNftsOwnedByAddress)
+	r.GET("/address/:ownerAddr/contract", audit.Handler, contractResource.GetContractsOwnedByAddress)
 
-	apigroup.GET("/health", resource.NewHealthResource(container.GetElastic()).HealthCheck)
+	r.GET("/health", resource.NewHealthResource(container.GetElastic()).HealthCheck)
 
 	r.GET("/", func(c *gin.Context) {
 		c.Data(http.StatusOK, "text/plain", []byte("Welcome to the NFT index API"))
 	})
-	r.GET("/loaderio-b8e545b85c125048324e20015fd1fc45.txt", func(c *gin.Context) {
-		c.Data(http.StatusOK, "text/plain", []byte("loaderio-b8e545b85c125048324e20015fd1fc45"))
-	})
+
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"code": http.StatusNotFound, "message": "Resource not found"})
 	})

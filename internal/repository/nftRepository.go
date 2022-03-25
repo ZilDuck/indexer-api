@@ -96,10 +96,10 @@ func (nftRepo nftRepository) GetForContract(network, contractAddr string, size, 
 	result, err := search(nftRepo.elastic.Client.
 		Search(elastic_search.NftIndex.Get(network)).
 		Query(elastic.NewTermQuery("contract.keyword", contractAddr)).
-		Size(int(size)).
 		Sort("tokenId", true).
-		From(int(offset)-1).
-		TrackTotalHits(true))
+		TrackTotalHits(true).
+		Size(int(size)).
+		From(int(offset)-1))
 
 	return nftRepo.findMany(result, err)
 }

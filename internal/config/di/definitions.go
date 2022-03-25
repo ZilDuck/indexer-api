@@ -44,9 +44,21 @@ var Definitions = []dingo.Def{
 		},
 	},
 	{
+		Name: "audit.repository",
+		Build: func(elastic elastic_search.Index) (repository.AuditRepository, error) {
+			return repository.NewAuditRepository(elastic), nil
+		},
+	},
+	{
 		Name: "contract.repository",
 		Build: func(elastic elastic_search.Index) (repository.ContactRepository, error) {
 			return repository.NewContractRepository(elastic), nil
+		},
+	},
+	{
+		Name: "contractState.repository",
+		Build: func(elastic elastic_search.Index) (repository.ContactStateRepository, error) {
+			return repository.NewContactStateRepository(elastic), nil
 		},
 	},
 	{

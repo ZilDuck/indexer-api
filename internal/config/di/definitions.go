@@ -1,7 +1,9 @@
 package di
 
 import (
+	"github.com/ZilDuck/indexer-api/internal/auth"
 	"github.com/ZilDuck/indexer-api/internal/config"
+	"github.com/ZilDuck/indexer-api/internal/database"
 	"github.com/ZilDuck/indexer-api/internal/elastic_search"
 	"github.com/ZilDuck/indexer-api/internal/messenger"
 	"github.com/ZilDuck/indexer-api/internal/metadata"
@@ -80,6 +82,20 @@ var Definitions = []dingo.Def{
 			retryClient.RetryMax = 3
 
 			return metadata.NewMetadataService(retryClient), nil
+		},
+	},
+	{
+		Name: "auth.service",
+		Build: func() (auth.Service, error) {
+			retryClient := retryablehttp.NewClient()
+			retryClient.RetryMax = 3
+
+			db, err := database.NewConnection(config.Get().DBConfig.ConnString)
+			if err != nil {
+				return nil, err
+			}
+
+			return auth.NewAuthService(db), nil
 		},
 	},
 }

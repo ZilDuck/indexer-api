@@ -17,9 +17,11 @@ var container *dic.Container
 
 func main() {
 	config.Init()
-	audit.Init(config.Get().AuditDir)
 
 	container, _ = dic.NewContainer()
+
+	audit.Init(config.Get().AuditDir)
+	container.GetAuthService().LoadClients()
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.Get().Port), setupRouter()); err != nil {
 		zap.L().With(zap.Error(err)).Fatal("Failed to start API")
@@ -37,27 +39,29 @@ func setupRouter() *gin.Engine {
 	r.Use(framework.Options)
 	r.Use(framework.ErrorHandler)
 
+	protect := r.Group("/", framework.Protected)
+
 	auditResource := resource.NewAuditResource(container.GetAuditRepository())
-	r.GET("/audit/status", auditResource.GetStatus)
-	r.GET("/audit/log/:month", auditResource.GetLogsForDate)
+	protect.GET("/audit/status", auditResource.GetStatus)
+	protect.GET("/audit/log/:month", auditResource.GetLogsForDate)
 
 	contractResource := resource.NewContractResource(container.GetContractRepository(), container.GetContractStateRepository(), container.GetNftRepository())
-	r.GET("/contract/:contractAddr", audit.Handler, contractResource.GetContract)
-	r.GET("/contract/:contractAddr/code", audit.Handler, contractResource.GetCode)
-	r.GET("/contract/:contractAddr/attributes", audit.Handler, contractResource.GetAttributes)
-	r.GET("/contract/:contractAddr/state", audit.Handler, contractResource.GetState)
+	protect.GET("/contract/:contractAddr", audit.Handler, contractResource.GetContract)
+	protect.GET("/contract/:contractAddr/code", audit.Handler, contractResource.GetCode)
+	protect.GET("/contract/:contractAddr/attributes", audit.Handler, contractResource.GetAttributes)
+	protect.GET("/contract/:contractAddr/state", audit.Handler, contractResource.GetState)
 
 	nftResource := resource.NewNftResource(container.GetNftRepository(), container.GetActionRepository(), container.GetMessenger(), container.GetMetadataService())
-	r.GET("/nft/:contractAddr", audit.Handler, nftResource.GetContractNfts)
-	r.GET("/nft/:contractAddr/:tokenId", audit.Handler, nftResource.GetContractNft)
-	r.GET("/nft/:contractAddr/:tokenId/refresh", audit.Handler, nftResource.RefreshMetadata)
-	r.GET("/nft/:contractAddr/:tokenId/metadata", audit.Handler, nftResource.GetContractNftMetadata)
-	r.GET("/nft/:contractAddr/:tokenId/actions", audit.Handler, nftResource.GetContractNftActions)
+	protect.GET("/nft/:contractAddr", audit.Handler, nftResource.GetContractNfts)
+	protect.GET("/nft/:contractAddr/:tokenId", audit.Handler, nftResource.GetContractNft)
+	protect.GET("/nft/:contractAddr/:tokenId/refresh", audit.Handler, nftResource.RefreshMetadata)
+	protect.GET("/nft/:contractAddr/:tokenId/metadata", audit.Handler, nftResource.GetContractNftMetadata)
+	protect.GET("/nft/:contractAddr/:tokenId/actions", audit.Handler, nftResource.GetContractNftActions)
 
-	r.GET("/address/:ownerAddr/nft", audit.Handler, nftResource.GetNftsOwnedByAddress)
-	r.GET("/address/:ownerAddr/contract", audit.Handler, contractResource.GetContractsOwnedByAddress)
+	protect.GET("/address/:ownerAddr/nft", audit.Handler, nftResource.GetNftsOwnedByAddress)
+	protect.GET("/address/:ownerAddr/contract", audit.Handler, contractResource.GetContractsOwnedByAddress)
 
-	r.GET("/health", resource.NewHealthResource(container.GetElastic()).HealthCheck)
+	protect.GET("/health", resource.NewHealthResource(container.GetElastic()).HealthCheck)
 
 	r.GET("/", func(c *gin.Context) {
 		c.Data(http.StatusOK, "text/plain", []byte("Welcome to the NFT index API"))

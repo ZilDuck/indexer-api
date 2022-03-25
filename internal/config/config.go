@@ -39,8 +39,15 @@ type ElasticSearchConfig struct {
 }
 
 type DBConfig struct {
-	ConnString string
-	LogMode    bool
+	Dialect  string
+	Username string
+	Password string
+	Host     string
+	Port     int
+	Name     string
+	SslMode  string
+	Options  string
+	RootCA   string
 }
 
 func Init() {
@@ -73,8 +80,15 @@ func Get() *Config {
 				Password:    getString("ELASTIC_SEARCH_PASSWORD", ""),
 			},
 			DBConfig: DBConfig{
-				ConnString: getString("DB_CONN_STRING", ""),
-				LogMode:    getBool("DB_LOG_MODE", false),
+				Dialect:  getString("DB_DIALECT", ""),
+				Username: getString("DB_USERNAME", ""),
+				Password: getString("DB_PASSWORD", ""),
+				Host:     getString("DB_HOST", ""),
+				Port:     getInt("DB_PORT", 0),
+				Name:     getString("DB_NAME", ""),
+				SslMode:  getString("DB_SSLMODE", ""),
+				Options:  getString("DB_OPTIONS", ""),
+				RootCA:   getString("DB_ROOT_CA", ""),
 			},
 			CdnHost:    getString("CDN_HOST", ""),
 			AuditDir:   getString("AUDIT_DIR", "/app/audit"),

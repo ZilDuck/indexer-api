@@ -62,7 +62,6 @@ func (r ContractResource) GetAttributes(c *gin.Context) {
 	}
 
 	jsonResponse(c, attributes)
-	c.Header("Cache-Control", "max-age=60")
 }
 
 func (r ContractResource) GetState(c *gin.Context) {
@@ -75,7 +74,6 @@ func (r ContractResource) GetState(c *gin.Context) {
 	}
 
 	jsonResponse(c, state)
-	c.Header("Cache-Control", "max-age=60")
 }
 
 func (r ContractResource) GetContractsOwnedByAddress(c *gin.Context) {
@@ -89,7 +87,6 @@ func (r ContractResource) GetContractsOwnedByAddress(c *gin.Context) {
 	}
 
 	if details == "false" {
-		c.Header("Cache-Control", "max-age=60")
 		jsonResponse(c, contractAddrs)
 		return
 	}
@@ -99,6 +96,5 @@ func (r ContractResource) GetContractsOwnedByAddress(c *gin.Context) {
 		handleError(c, err, fmt.Sprintf("Failed to get contracts for address: %s", ownerAddr), http.StatusInternalServerError)
 		return
 	}
-	c.Header("Cache-Control", "max-age=60")
 	jsonResponse(c, mapper.ContractsToDtos(contracts))
 }

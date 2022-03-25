@@ -107,7 +107,6 @@ func (r NftResource) GetContractNftActions(c *gin.Context) {
 	}
 
 	c.JSON(200, mapper.ActionsToDtos(actions))
-	c.Header("Cache-Control", "max-age=60")
 }
 
 func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
@@ -121,7 +120,6 @@ func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 	}
 
 	c.JSON(200, nfts)
-	c.Header("Cache-Control", "max-age=60")
 }
 
 func (r NftResource) RefreshMetadata(c *gin.Context) {

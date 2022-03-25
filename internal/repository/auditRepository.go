@@ -29,7 +29,7 @@ func NewAuditRepository(elastic elastic_search.Index) AuditRepository {
 func (auditRepo auditRepository) GetByDateAndApiKey(t time.Time, apiKey string, size, offset uint64) ([]entity.Audit, int64, error) {
 	results, err := search(auditRepo.elastic.Client.
 		Search(elastic_search.AuditIndex.GetByDate(t.Format("2006.01.02"))).
-		Query(elastic.NewTermQuery("apiKey.keyword", apiKey)).
+		Query(elastic.NewTermQuery("apiKey", apiKey)).
 		Sort("@timestamp", false).
 		TrackTotalHits(true).
 		Size(int(size)).

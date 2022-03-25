@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ZilDuck/indexer-api/internal/framework"
 	"github.com/ZilDuck/indexer-api/internal/helpers"
+	"github.com/ZilDuck/indexer-api/internal/mapper"
 	"github.com/ZilDuck/indexer-api/internal/repository"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -36,10 +37,6 @@ func (r AuditResource) GetLogsForDate(c *gin.Context) {
 	}
 
 	apiKey := helpers.ApiKey(c)
-	//if apiKey == "" {
-	//	handleError(c, nil, "Cannot get audit data with no api key", http.StatusBadRequest)
-	//	return
-	//}
 
 	audits, total, err := r.auditRepo.GetByDateAndApiKey(*month, apiKey, pagination.Size, pagination.Offset)
 	if err != nil {
@@ -48,7 +45,7 @@ func (r AuditResource) GetLogsForDate(c *gin.Context) {
 	}
 
 	paginator(c, total, *pagination)
-	jsonResponse(c, audits)
+	jsonResponse(c, mapper.AuditsToDtos(audits))
 	c.Header("Cache-Control", "max-age=60")
 }
 

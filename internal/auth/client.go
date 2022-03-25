@@ -12,7 +12,7 @@ var ErrNoClientFound = errors.New("no auth clients configured")
 type Client struct {
 	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
 	Username string    `json:"username"`
-	ApiKey   string `json:"key"`
+	ApiKey   string    `json:"key"`
 	Active   bool      `json:"status"`
 }
 

@@ -90,7 +90,7 @@ var Definitions = []dingo.Def{
 			retryClient := retryablehttp.NewClient()
 			retryClient.RetryMax = 3
 
-			db, err := database.NewConnection(config.Get().DBConfig.ConnString)
+			db, err := database.NewConnection(config.Get().DBConfig)
 			if err != nil {
 				return nil, err
 			}

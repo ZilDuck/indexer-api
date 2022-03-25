@@ -22,7 +22,19 @@ func NewAuditResource(auditRepo repository.AuditRepository) AuditResource {
 }
 
 func (r AuditResource) GetStatus(c *gin.Context) {
+	month, err := getMonthOffset(c)
+	if err != nil {
+		handleError(c, err, err.Error(), http.StatusBadRequest)
+	}
 
+	total, err := r.auditRepo.CountByDateAndApiKey(*month, helpers.ApiKey(c))
+	if err != nil {
+		handleError(c, err, fmt.Sprintf("Failed to get audit count"), http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"requestCount": total})
+	c.Header("Cache-Control", "no-store")
 }
 
 func (r AuditResource) GetLogsForDate(c *gin.Context) {
@@ -36,9 +48,7 @@ func (r AuditResource) GetLogsForDate(c *gin.Context) {
 		handleError(c, err, "Invalid pagination parameters", http.StatusBadRequest)
 	}
 
-	apiKey := helpers.ApiKey(c)
-
-	audits, total, err := r.auditRepo.GetByDateAndApiKey(*month, apiKey, pagination.Size, pagination.Offset)
+	audits, total, err := r.auditRepo.GetByDateAndApiKey(*month, helpers.ApiKey(c), pagination.Size, pagination.Offset)
 	if err != nil {
 		handleError(c, err, fmt.Sprintf("Failed to get audit logs"), http.StatusInternalServerError)
 		return
@@ -46,7 +56,7 @@ func (r AuditResource) GetLogsForDate(c *gin.Context) {
 
 	paginator(c, total, *pagination)
 	jsonResponse(c, mapper.AuditsToDtos(audits))
-	c.Header("Cache-Control", "max-age=60")
+	c.Header("Cache-Control", "no-store")
 }
 
 func getMonthOffset(c *gin.Context) (*time.Time, error) {

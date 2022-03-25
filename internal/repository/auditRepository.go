@@ -44,8 +44,8 @@ func (auditRepo auditRepository) GetByDateAndApiKey(t time.Time, apiKey string, 
 
 func (auditRepo auditRepository) CountByDateAndApiKey(t time.Time, apiKey string) (int64, error) {
 	return count(auditRepo.elastic.Client.
-		Count(elastic_search.AuditIndex.GetByDate(t.Format("2006-02-01"))).
-		Query(elastic.NewTermQuery("apiKey.keyword", apiKey)))
+		Count(elastic_search.AuditIndex.GetByDate(t.Format("2006.01.02"))).
+		Query(elastic.NewTermQuery("apiKey", apiKey)))
 }
 
 

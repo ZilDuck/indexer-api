@@ -1,8 +1,10 @@
 package resource
 
 import (
+	"github.com/Zilliqa/gozilliqa-sdk/bech32"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"strings"
 )
 
 func handleError(c *gin.Context, err error, msg string, status int) {
@@ -18,4 +20,16 @@ func jsonResponse(c *gin.Context, object interface{}) {
 	}
 
 	c.JSON(200, object)
+}
+
+func getAddress(address string) string {
+	address = strings.ToLower(address)
+
+	if address[0:3] == "zil" {
+		if fromBech32, err := bech32.FromBech32Addr(address); err == nil {
+			address = "0x"+strings.ToLower(fromBech32)
+		}
+	}
+	zap.L().Info("Using address "+address)
+	return address
 }

@@ -27,6 +27,7 @@ func getAddress(address string) string {
 
 	if address[0:3] == "zil" {
 		if fromBech32, err := bech32.FromBech32Addr(address); err == nil {
+			zap.S().Infof("Swapping %s for %s", address, "0x"+strings.ToLower(fromBech32))
 			address = "0x"+strings.ToLower(fromBech32)
 		}
 	}

@@ -3,6 +3,7 @@ module github.com/ZilDuck/indexer-api
 go 1.16
 
 require (
+	github.com/Zilliqa/gozilliqa-sdk v1.2.0
 	github.com/alexbrainman/sspi v0.0.0-20180613141037-e580b900e9f5 // indirect
 	github.com/aws/aws-sdk-go v1.43.11
 	github.com/cockroachdb/cockroach-go/v2 v2.2.8

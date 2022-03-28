@@ -110,7 +110,7 @@ func (r NftResource) GetContractNftActions(c *gin.Context) {
 }
 
 func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
-	ownerAddr := strings.ToLower(c.Param("ownerAddr"))
+	ownerAddr := getAddress(c.Param("ownerAddr"))
 	shape := strings.ToUpper(c.DefaultQuery("shape", ""))
 
 	nfts, err := r.nftRepo.GetForAddress(helpers.Network(c), ownerAddr, shape)
@@ -144,7 +144,7 @@ func (r NftResource) RefreshMetadata(c *gin.Context) {
 }
 
 func (r NftResource) getContractAndTokenId(c *gin.Context) (*string, *uint64, error) {
-	contractAddr := strings.ToLower(c.Param("contractAddr"))
+	contractAddr := getAddress(c.Param("contractAddr"))
 	tokenId, err := strconv.ParseUint(c.Param("tokenId"), 0, 64)
 
 	if err != nil {

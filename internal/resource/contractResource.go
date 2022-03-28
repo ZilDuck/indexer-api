@@ -22,7 +22,7 @@ func NewContractResource(contractRepo repository.ContactRepository, contractStat
 }
 
 func (r ContractResource) GetContract(c *gin.Context) {
-	contractAddr := strings.ToLower(c.Param("contractAddr"))
+	contractAddr := getAddress(c.Param("contractAddr"))
 
 	contract, err := r.contractRepo.GetContract(helpers.Network(c), contractAddr)
 	if err != nil {
@@ -37,7 +37,7 @@ func (r ContractResource) GetContract(c *gin.Context) {
 }
 
 func (r ContractResource) GetCode(c *gin.Context) {
-	contractAddr := strings.ToLower(c.Param("contractAddr"))
+	contractAddr := getAddress(c.Param("contractAddr"))
 
 	contract, err := r.contractRepo.GetContract(helpers.Network(c), contractAddr)
 	if err != nil {
@@ -53,7 +53,7 @@ func (r ContractResource) GetCode(c *gin.Context) {
 }
 
 func (r ContractResource) GetAttributes(c *gin.Context) {
-	contractAddr := strings.ToLower(c.Param("contractAddr"))
+	contractAddr := getAddress(c.Param("contractAddr"))
 
 	attributes, err := r.nftRepo.GetForContractAttributes(helpers.Network(c), contractAddr)
 	if err != nil {
@@ -65,7 +65,7 @@ func (r ContractResource) GetAttributes(c *gin.Context) {
 }
 
 func (r ContractResource) GetState(c *gin.Context) {
-	contractAddr := strings.ToLower(c.Param("contractAddr"))
+	contractAddr := getAddress(c.Param("contractAddr"))
 
 	state, err := r.contractStateRepo.GetState(helpers.Network(c), contractAddr)
 	if err != nil {
@@ -77,7 +77,7 @@ func (r ContractResource) GetState(c *gin.Context) {
 }
 
 func (r ContractResource) GetContractsOwnedByAddress(c *gin.Context) {
-	ownerAddr := strings.ToLower(c.Param("ownerAddr"))
+	ownerAddr := getAddress(c.Param("ownerAddr"))
 	details := strings.ToLower(c.DefaultQuery("details", "false"))
 
 	contractAddrs, err := r.contractStateRepo.GetAllAddressesOwnedBy(helpers.Network(c), ownerAddr)

@@ -30,6 +30,5 @@ func getAddress(address string) string {
 			address = "0x"+strings.ToLower(fromBech32)
 		}
 	}
-	zap.L().Info("Using address "+address)
 	return address
 }

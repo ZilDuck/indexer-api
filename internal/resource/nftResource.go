@@ -33,7 +33,7 @@ func NewNftResource(
 }
 
 func (r NftResource) GetContractNfts(c *gin.Context) {
-	contractAddr := strings.ToLower(c.Param("contractAddr"))
+	contractAddr := getAddress(c.Param("contractAddr"))
 	pagination, err := framework.NewPaginationFromContext(c)
 	if err != nil {
 		handleError(c, err, "Invalid pagination parameters", http.StatusBadRequest)

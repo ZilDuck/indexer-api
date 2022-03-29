@@ -9,7 +9,7 @@ import (
 func StateToDto(e entity.ContractState, filters []string) dto.State {
 	state := dto.State{}
 	for _, el := range e.State {
-		if len(filters) != 0 {
+		if len(filters) > 1 {
 			matched := false
 			for _, filter :=  range filters {
 				if el.Key == filter {

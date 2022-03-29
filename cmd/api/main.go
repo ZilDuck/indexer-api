@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/ZilDuck/indexer-api/generated/dic"
-	"github.com/ZilDuck/indexer-api/internal/audit"
 	"github.com/ZilDuck/indexer-api/internal/config"
 	"github.com/ZilDuck/indexer-api/internal/framework"
 	"github.com/ZilDuck/indexer-api/internal/resource"
@@ -19,8 +18,6 @@ func main() {
 	config.Init()
 
 	container, _ = dic.NewContainer()
-
-	audit.Init(config.Get().AuditDir)
 	container.GetAuthService().LoadClients()
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.Get().Port), setupRouter()); err != nil {
@@ -46,20 +43,20 @@ func setupRouter() *gin.Engine {
 	protect.GET("/audit/log/:month", auditResource.GetLogsForDate)
 
 	contractResource := resource.NewContractResource(container.GetContractRepository(), container.GetContractStateRepository(), container.GetNftRepository())
-	protect.GET("/contract/:contractAddr", audit.Handler, contractResource.GetContract)
-	protect.GET("/contract/:contractAddr/code", audit.Handler, contractResource.GetCode)
-	protect.GET("/contract/:contractAddr/attributes", audit.Handler, contractResource.GetAttributes)
-	protect.GET("/contract/:contractAddr/state", audit.Handler, contractResource.GetState)
+	protect.GET("/contract/:contractAddr", contractResource.GetContract)
+	protect.GET("/contract/:contractAddr/code", contractResource.GetCode)
+	protect.GET("/contract/:contractAddr/attributes", contractResource.GetAttributes)
+	protect.GET("/contract/:contractAddr/state", contractResource.GetState)
 
 	nftResource := resource.NewNftResource(container.GetNftRepository(), container.GetActionRepository(), container.GetMessenger(), container.GetMetadataService())
-	protect.GET("/nft/:contractAddr", audit.Handler, nftResource.GetContractNfts)
-	protect.GET("/nft/:contractAddr/:tokenId", audit.Handler, nftResource.GetContractNft)
-	protect.GET("/nft/:contractAddr/:tokenId/refresh", audit.Handler, nftResource.RefreshMetadata)
-	protect.GET("/nft/:contractAddr/:tokenId/metadata", audit.Handler, nftResource.GetContractNftMetadata)
-	protect.GET("/nft/:contractAddr/:tokenId/actions", audit.Handler, nftResource.GetContractNftActions)
+	protect.GET("/nft/:contractAddr", nftResource.GetContractNfts)
+	protect.GET("/nft/:contractAddr/:tokenId", nftResource.GetContractNft)
+	protect.GET("/nft/:contractAddr/:tokenId/refresh", nftResource.RefreshMetadata)
+	protect.GET("/nft/:contractAddr/:tokenId/metadata", nftResource.GetContractNftMetadata)
+	protect.GET("/nft/:contractAddr/:tokenId/actions", nftResource.GetContractNftActions)
 
-	protect.GET("/address/:ownerAddr/nft", audit.Handler, nftResource.GetNftsOwnedByAddress)
-	protect.GET("/address/:ownerAddr/contract", audit.Handler, contractResource.GetContractsOwnedByAddress)
+	protect.GET("/address/:ownerAddr/nft", nftResource.GetNftsOwnedByAddress)
+	protect.GET("/address/:ownerAddr/contract", contractResource.GetContractsOwnedByAddress)
 
 	protect.GET("/health", resource.NewHealthResource(container.GetElastic()).HealthCheck)
 

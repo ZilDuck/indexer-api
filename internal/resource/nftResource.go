@@ -47,7 +47,6 @@ func (r NftResource) GetContractNfts(c *gin.Context) {
 
 	paginator(c, total, *pagination)
 
-	c.Header("Cache-Control", "no-cache")
 	c.JSON(200, mapper.NftToDtos(nfts))
 }
 
@@ -67,7 +66,6 @@ func (r NftResource) GetContractNft(c *gin.Context) {
 		return
 	}
 
-	c.Header("Cache-Control", "no-cache")
 	c.JSON(200, mapper.NftToDto(*nft))
 }
 
@@ -90,7 +88,6 @@ func (r NftResource) GetContractNftMetadata(c *gin.Context) {
 		return
 	}
 
-	c.Header("Cache-Control", "no-cache")
 	c.JSON(200, md)
 }
 

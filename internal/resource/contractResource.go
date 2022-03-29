@@ -66,6 +66,7 @@ func (r ContractResource) GetAttributes(c *gin.Context) {
 
 func (r ContractResource) GetState(c *gin.Context) {
 	contractAddr := getAddress(c.Param("contractAddr"))
+	filters := strings.Split(c.Query("filters"), ",")
 
 	state, err := r.contractStateRepo.GetState(helpers.Network(c), contractAddr)
 	if err != nil {
@@ -73,7 +74,7 @@ func (r ContractResource) GetState(c *gin.Context) {
 		return
 	}
 
-	jsonResponse(c, state)
+	jsonResponse(c, mapper.StateToDto(*state, filters))
 }
 
 func (r ContractResource) GetContractsOwnedByAddress(c *gin.Context) {

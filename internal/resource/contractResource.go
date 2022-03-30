@@ -8,6 +8,7 @@ import (
 	"github.com/ZilDuck/indexer-api/internal/repository"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -54,8 +55,9 @@ func (r ContractResource) GetCode(c *gin.Context) {
 
 func (r ContractResource) GetAttributes(c *gin.Context) {
 	contractAddr := getAddress(c.Param("contractAddr"))
+	tokenIds := getTokenIdsFromQueryList(c.Query("tokenIds"))
 
-	attributes, err := r.nftRepo.GetForContractAttributes(helpers.Network(c), contractAddr)
+	attributes, err := r.nftRepo.GetForContractAttributes(helpers.Network(c), contractAddr, tokenIds)
 	if err != nil {
 		handleError(c, err, fmt.Sprintf("Failed to get attributes: %s", contractAddr), 500)
 		return
@@ -98,4 +100,15 @@ func (r ContractResource) GetContractsOwnedByAddress(c *gin.Context) {
 		return
 	}
 	jsonResponse(c, mapper.ContractsToDtos(contracts))
+}
+
+func getTokenIdsFromQueryList(query string) (tokenIds []uint64) {
+	for _, el := range strings.Split(query, ",") {
+		if tokenId, err := strconv.ParseUint(el, 0, 64); err == nil {
+			if tokenId != 0 {
+				tokenIds = append(tokenIds, tokenId)
+			}
+		}
+	}
+	return
 }

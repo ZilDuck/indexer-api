@@ -13,7 +13,7 @@ type NftRepository interface {
 	GetForAddress(network, ownerAddr string, shape string) ([]entity.NftOwner, error)
 	GetForContract(network, contractAddr string, size, offset uint64) ([]entity.Nft, int64, error)
 	GetForContractByTokenId(network, contractAddr string, tokenId uint64) (*entity.Nft, error)
-	GetForContractAttributes(network, contractAddr string) (entity.Attributes, error)
+	GetForContractAttributes(network, contractAddr string, tokenIds []uint64) (entity.Attributes, error)
 }
 
 type nftRepository struct {
@@ -118,11 +118,19 @@ func (nftRepo nftRepository) GetForContractByTokenId(network, contractAddr strin
 	return nftRepo.findOne(result, err)
 }
 
-func (nftRepo nftRepository) GetForContractAttributes(network, contractAddr string) (entity.Attributes, error) {
-	query := elastic.NewBoolQuery().Must(
+func (nftRepo nftRepository) GetForContractAttributes(network, contractAddr string, tokenIds []uint64) (entity.Attributes, error) {
+	queries := []elastic.Query{
 		elastic.NewTermQuery("contract.keyword", contractAddr),
 		elastic.NewNestedQuery("metadata", elastic.NewTermQuery("metadata.status.keyword", "success")),
-	)
+	}
+	if len(tokenIds) != 0 {
+		values := make([]interface{}, len(tokenIds))
+		for i, v := range tokenIds {
+			values[i] = v
+		}
+		queries = append(queries, elastic.NewTermsQuery("tokenId", values...))
+	}
+	query := elastic.NewBoolQuery().Must(queries...)
 
 	result, err := search(nftRepo.elastic.Client.
 		Search(elastic_search.NftIndex.Get(network)).

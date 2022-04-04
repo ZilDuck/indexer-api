@@ -77,7 +77,7 @@ func (r NftResource) GetContractNftMetadata(c *gin.Context) {
 
 	nft, err := r.nftRepo.GetForContractByTokenId(helpers.Network(c), *contractAddr, *tokenId)
 	if err != nil {
-		handleError(c, err, fmt.Sprintf("Failed to get %d nft of contract: %s", tokenId, *contractAddr), http.StatusInternalServerError)
+		handleError(c, err, fmt.Sprintf("Failed to get %d nft of contract: %s", *tokenId, *contractAddr), http.StatusInternalServerError)
 		return
 	}
 

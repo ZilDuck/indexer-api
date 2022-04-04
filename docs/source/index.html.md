@@ -717,7 +717,7 @@ var requestOptions = {
   }
 };
 
-fetch("https://api.zildexr.com/address/0x3a9398c1abfd7c9845149d68ad30bb672ba66295/nft", requestOptions)
+fetch("https://api.zildexr.com/address/0x3a9398c1abfd7c9845149d68ad30bb672ba66295/contract", requestOptions)
   .then(response => response.text())
   .then(result => console.log(result))
   .catch(error => console.log('error', error));

@@ -19,7 +19,7 @@ type Config struct {
 	Aws           AwsConfig
 	CdnHost       string
 	AuditDir      string
-	ApiClients    []string
+	AdminIds      []string
 }
 
 type AwsConfig struct {
@@ -92,7 +92,7 @@ func Get() *Config {
 			},
 			CdnHost:    getString("CDN_HOST", ""),
 			AuditDir:   getString("AUDIT_DIR", "/app/audit"),
-			ApiClients: getSlice("API_ClIENTS", []string{}, "^"),
+			AdminIds:   getSlice("ADMIN_IDS", []string{}, ","),
 		}
 	}
 	return config

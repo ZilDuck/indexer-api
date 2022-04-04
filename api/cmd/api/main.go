@@ -60,6 +60,11 @@ func setupRouter() *gin.Engine {
 
 	protect.GET("/health", resource.NewHealthResource(container.GetElastic()).HealthCheck)
 
+	//adminResource := resource.NewAdminResource(container.GetAuthService())
+	//adminRoute := r.Group("/admin", framework.ProtectedAdmin)
+	//adminRoute.GET("/client", adminResource.GetClients)
+	//adminRoute.POST("/client", adminResource.CreateClient)
+
 	r.GET("/", func(c *gin.Context) {
 		c.Data(http.StatusOK, "text/plain", []byte("Welcome to the NFT index API"))
 	})

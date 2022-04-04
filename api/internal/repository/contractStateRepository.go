@@ -71,10 +71,14 @@ func (contractStateRepo contactStateRepository) GetAllAddressesOwnedBy(network s
 			elastic.NewTermQuery("state.key.keyword", "contractOwner"),
 			elastic.NewTermQuery("state.value.keyword", ownerAddr),
 		),
+		elastic.NewBoolQuery().Must(
+			elastic.NewTermQuery("state.key.keyword", "contract_owner"),
+			elastic.NewTermQuery("state.value.keyword", ownerAddr),
+		),
 	).MinimumShouldMatch("1"))
 
 	result, err := search(contractStateRepo.elastic.Client.
-		Search(elastic_search.ContractIndex.Get(network)).
+		Search(elastic_search.ContractStateIndex.Get(network)).
 		Query(query).
 		Aggregation("contractAddr", elastic.NewTermsAggregation().Field("address.keyword")).
 		TrackTotalHits(true).

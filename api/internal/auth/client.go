@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"github.com/ZilDuck/indexer-api/internal/config"
 	"github.com/google/uuid"
 )
 
@@ -16,11 +17,20 @@ type Client struct {
 	Active   bool      `json:"status"`
 }
 
+func (c Client) IsAdmin() bool {
+	for _, adminId := range config.Get().AdminIds {
+		if c.ID.String() == adminId {
+			return true
+		}
+	}
+	return false
+}
+
 func GetApiClients() []Client {
 	return clients
 }
 
-func GetApiClient(apiKey string) (*Client, error) {
+func GetClientByApiKey(apiKey string) (*Client, error) {
 	clients := GetApiClients()
 
 	if len(clients) == 0 {
@@ -33,4 +43,19 @@ func GetApiClient(apiKey string) (*Client, error) {
 	}
 
 	return nil, errors.New("API Key not found")
+}
+
+func GetClientByUsername(username string) (*Client, error) {
+	clients := GetApiClients()
+
+	if len(clients) == 0 {
+		return nil, ErrNoClientFound
+	}
+	for idx := range clients {
+		if clients[idx].Username == username {
+			return &clients[idx], nil
+		}
+	}
+
+	return nil, errors.New("username not found")
 }

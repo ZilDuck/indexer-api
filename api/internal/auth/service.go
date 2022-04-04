@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"github.com/cockroachdb/cockroach-go/v2/crdb/crdbgorm"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -11,7 +12,9 @@ import (
 type Service interface {
 	LoadClients()
 	RefreshClients()
-	CreateNewClient(username string, active bool) error
+	CreateClient(username string, active bool) (*Client, error)
+	UpdateClient(client Client) error
+	DeleteClient(client Client) error
 }
 
 type service struct {
@@ -32,13 +35,14 @@ func (s service) LoadClients() {
 
 	for idx := range loaded {
 		if loaded[idx].Active == true {
-			zap.S().Infof("Loaded client %s", loaded[idx].Username)
+			zap.S().Infof("Loaded client %s-%s", loaded[idx].Username, loaded[idx].ID)
 			clients = append(clients, loaded[idx])
 		}
 	}
 }
 
 func (s service) RefreshClients() {
+	zap.L().Info("Refreshing clients")
 	var loaded []Client
 	s.db.Find(&loaded)
 
@@ -50,21 +54,62 @@ func (s service) RefreshClients() {
 
 	for idx := range loaded {
 		if loaded[idx].Active == true {
-			zap.S().Infof("Loaded client %s", loaded[idx].Username)
 			clients = append(clients, loaded[idx])
 		}
 	}
 }
 
-func (s service) CreateNewClient(username string, active bool) error {
-	return crdbgorm.ExecuteTx(context.Background(), s.db, nil,
+func (s service) CreateClient(username string, active bool) (*Client, error) {
+	zap.S().Infof("Create client %s", username)
+
+	s.RefreshClients()
+
+	for idx := range clients {
+		if clients[idx].Username == username {
+			return nil, errors.New("username already in use")
+		}
+	}
+
+	client := &Client{
+		ID:       uuid.New(),
+		Username: username,
+		ApiKey:   uuid.New().String(),
+		Active:   active,
+	}
+
+	err := crdbgorm.ExecuteTx(context.Background(), s.db, nil,
 		func(tx *gorm.DB) error {
-			return s.db.Create(&Client{
-				ID:       uuid.New(),
-				Username: username,
-				ApiKey:   uuid.New().String(),
-				Active:   active,
-			}).Error
+			return s.db.Create(client).Error
 		},
 	)
+
+	if err == nil {
+		s.RefreshClients()
+	}
+
+	return client, err
+}
+
+func (s service) UpdateClient(client Client) error {
+	zap.S().Infof("Update client %s", client.Username)
+
+	if err := s.db.Save(&client).Error; err != nil {
+		return err
+	}
+
+	s.RefreshClients()
+
+	return nil
+}
+
+func (s service) DeleteClient(client Client) error {
+	zap.S().Infof("Delete client %s", client.Username)
+
+	if err := s.db.Delete(client).Error; err != nil {
+		return err
+	}
+
+	s.RefreshClients()
+
+	return nil
 }

@@ -45,6 +45,14 @@ func (contractStateRepo contactStateRepository) GetAllOwnedBy(network string, ow
 			elastic.NewTermQuery("state.key.keyword", "contractOwner"),
 			elastic.NewTermQuery("state.value.keyword", ownerAddr),
 		),
+		elastic.NewBoolQuery().Must(
+			elastic.NewTermQuery("state.key.keyword", "contract_owner"),
+			elastic.NewTermQuery("state.value.keyword", ownerAddr),
+		),
+		elastic.NewBoolQuery().Must(
+			elastic.NewTermQuery("state.key.keyword", "current_owner"),
+			elastic.NewWildcardQuery("state.value.keyword", "*"+ownerAddr+"*"),
+		),
 	).MinimumShouldMatch("1"))
 
 	result, err := search(contractStateRepo.elastic.Client.
@@ -75,6 +83,10 @@ func (contractStateRepo contactStateRepository) GetAllAddressesOwnedBy(network s
 			elastic.NewTermQuery("state.key.keyword", "contract_owner"),
 			elastic.NewTermQuery("state.value.keyword", ownerAddr),
 		),
+		elastic.NewBoolQuery().Must(
+			elastic.NewTermQuery("state.key.keyword", "current_owner"),
+			elastic.NewWildcardQuery("state.value.keyword", "*"+ownerAddr+"*"),
+		),
 	).MinimumShouldMatch("1"))
 
 	result, err := search(contractStateRepo.elastic.Client.
@@ -97,7 +109,7 @@ func (contractStateRepo contactStateRepository) GetAllAddressesOwnedBy(network s
 	return contracts, nil
 }
 
-func (contractStateepo contactStateRepository) findOne(results *elastic.SearchResult, err error) (*entity.ContractState, error) {
+func (contractStateRepo contactStateRepository) findOne(results *elastic.SearchResult, err error) (*entity.ContractState, error) {
 	if err != nil {
 		return nil, err
 	}

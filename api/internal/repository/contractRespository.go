@@ -5,11 +5,12 @@ import (
 	"errors"
 	"github.com/ZilDuck/indexer-api/internal/elastic_search"
 	"github.com/ZilDuck/indexer-api/internal/entity"
+	"github.com/ZilDuck/indexer-api/internal/request"
 	"github.com/olivere/elastic/v7"
 )
 
 type ContactRepository interface {
-	GetAll(network string) ([]entity.Contract, int64, error)
+	GetAll(network string, pagination *request.Pagination, sort *request.Sort, from uint64, shapes []string) ([]entity.Contract, int64, error)
 	GetContract(network, contractAddr string) (*entity.Contract, error)
 	GetContracts(network string, contractAddrs ...string) ([]entity.Contract, error)
 }
@@ -26,13 +27,30 @@ func NewContractRepository(elastic elastic_search.Index) ContactRepository {
 	return contactRepository{elastic: elastic}
 }
 
-func (contractRepo contactRepository) GetAll(network string) ([]entity.Contract, int64, error) {
+func (contractRepo contactRepository) GetAll(network string, pagination *request.Pagination, sort *request.Sort, from uint64, shapes []string) ([]entity.Contract, int64, error) {
+	mustQueries := []elastic.Query{
+		elastic.NewRangeQuery("blockNum").Gte(from),
+	}
+
+	if len(shapes) > 0 {
+		shapeQueries := make([]elastic.Query, 0)
+		for _, shape := range shapes {
+			shapeQueries = append(shapeQueries, elastic.NewTermQuery("standards."+shape, true))
+		}
+		mustQueries = append(mustQueries, elastic.NewBoolQuery().Should(shapeQueries...).MinimumNumberShouldMatch(1))
+	}
+
+	if sort == nil {
+		sort = &request.Sort{Field: "blockNum", Asc: false}
+	}
+
 	result, err := search(contractRepo.elastic.Client.
-		Search(elastic_search.ContractIndex.Get(network)).
-		Query(elastic.NewTermQuery("zrc6", true)).
-		Sort("blockNum", false).
-		TrackTotalHits(true).
-		Size(100))
+	Search(elastic_search.ContractIndex.Get(network)).
+	Query(elastic.NewBoolQuery().Must(mustQueries...)).
+	TrackTotalHits(true).
+	Sort(sort.Field, sort.Asc).
+	From(pagination.Offset).
+	Size(pagination.Size))
 
 	return contractRepo.findMany(result, err)
 }

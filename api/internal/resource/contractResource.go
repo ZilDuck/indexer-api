@@ -3,9 +3,11 @@ package resource
 import (
 	"errors"
 	"fmt"
+	"github.com/ZilDuck/indexer-api/internal/dev"
 	"github.com/ZilDuck/indexer-api/internal/helpers"
 	"github.com/ZilDuck/indexer-api/internal/mapper"
 	"github.com/ZilDuck/indexer-api/internal/repository"
+	"github.com/ZilDuck/indexer-api/internal/request"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -35,6 +37,30 @@ func (r ContractResource) GetContract(c *gin.Context) {
 		return
 	}
 	jsonResponse(c, mapper.ContractToDto(*contract))
+}
+
+func (r ContractResource) GetContracts(c *gin.Context) {
+	req := request.GetAllContractsRequest(c)
+	if req.Errors() != nil {
+		handleError(c, req.Errors()[0], "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	dev.Dump(req)
+
+	contracts, total, err := r.contractRepo.GetAll(
+		helpers.Network(c),
+		req.Pagination,
+		req.Sort,
+		req.Parameters.Uint64("from"),
+		req.Parameters.StringList("shape"))
+	if err != nil {
+		handleError(c, err, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	paginator(c, total, req.Pagination)
+	jsonResponse(c, mapper.ContractsToDtos(contracts))
 }
 
 func (r ContractResource) GetCode(c *gin.Context) {

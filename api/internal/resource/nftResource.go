@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ZilDuck/indexer-api/internal/framework"
 	"github.com/ZilDuck/indexer-api/internal/helpers"
 	"github.com/ZilDuck/indexer-api/internal/mapper"
 	"github.com/ZilDuck/indexer-api/internal/messenger"
 	"github.com/ZilDuck/indexer-api/internal/metadata"
 	"github.com/ZilDuck/indexer-api/internal/repository"
+	"github.com/ZilDuck/indexer-api/internal/request"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -33,19 +33,17 @@ func NewNftResource(
 }
 
 func (r NftResource) GetContractNfts(c *gin.Context) {
-	contractAddr := getAddress(c.Param("contractAddr"))
-	pagination, err := framework.NewPaginationFromContext(c)
-	if err != nil {
-		handleError(c, err, "Invalid pagination parameters", http.StatusBadRequest)
-	}
+	req := request.NewPaginatedRequest(c)
 
-	nfts, total, err := r.nftRepo.GetForContract(helpers.Network(c), contractAddr, pagination.Size, pagination.Offset)
+	contractAddr := getAddress(c.Param("contractAddr"))
+
+	nfts, total, err := r.nftRepo.GetForContract(helpers.Network(c), contractAddr, req.Pagination.Size, req.Pagination.Offset)
 	if err != nil {
 		handleError(c, err, fmt.Sprintf("Failed to get nfts for contract: %s", contractAddr), http.StatusInternalServerError)
 		return
 	}
 
-	paginator(c, total, *pagination)
+	paginator(c, total, req.Pagination)
 
 	c.JSON(200, mapper.NftToDtos(nfts))
 }

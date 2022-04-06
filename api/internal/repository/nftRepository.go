@@ -11,7 +11,7 @@ import (
 
 type NftRepository interface {
 	GetForAddress(network, ownerAddr string, shape string) ([]entity.NftOwner, error)
-	GetForContract(network, contractAddr string, size, offset uint64) ([]entity.Nft, int64, error)
+	GetForContract(network, contractAddr string, size, offset int) ([]entity.Nft, int64, error)
 	GetForContractByTokenId(network, contractAddr string, tokenId uint64) (*entity.Nft, error)
 	GetForContractAttributes(network, contractAddr string, tokenIds []uint64) (entity.Attributes, error)
 }
@@ -92,14 +92,14 @@ func (nftRepo nftRepository) GetForAddress(network, ownerAddr string, shape stri
 	return contracts, nil
 }
 
-func (nftRepo nftRepository) GetForContract(network, contractAddr string, size, offset uint64) ([]entity.Nft, int64, error) {
+func (nftRepo nftRepository) GetForContract(network, contractAddr string, size, offset int) ([]entity.Nft, int64, error) {
 	result, err := search(nftRepo.elastic.Client.
 		Search(elastic_search.NftIndex.Get(network)).
 		Query(elastic.NewTermQuery("contract.keyword", contractAddr)).
 		Sort("tokenId", true).
 		TrackTotalHits(true).
-		Size(int(size)).
-		From(int(offset)-1))
+		Size(size).
+		From(offset))
 
 	return nftRepo.findMany(result, err)
 }

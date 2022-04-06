@@ -43,6 +43,7 @@ func setupRouter() *gin.Engine {
 	protect.GET("/audit/log/:month", auditResource.GetLogsForDate)
 
 	contractResource := resource.NewContractResource(container.GetContractRepository(), container.GetContractStateRepository(), container.GetNftRepository())
+	protect.GET("/contract", contractResource.GetContracts)
 	protect.GET("/contract/:contractAddr", contractResource.GetContract)
 	protect.GET("/contract/:contractAddr/code", contractResource.GetCode)
 	protect.GET("/contract/:contractAddr/attributes", contractResource.GetAttributes)

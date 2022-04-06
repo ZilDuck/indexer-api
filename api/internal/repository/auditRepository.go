@@ -10,7 +10,7 @@ import (
 )
 
 type AuditRepository interface {
-	GetByDateAndApiKey(t time.Time, apiKey string, size, offset uint64) ([]entity.Audit, int64, error)
+	GetByDateAndApiKey(t time.Time, apiKey string, size, offset int) ([]entity.Audit, int64, error)
 	CountByDateAndApiKey(t time.Time, apiKey string) (int64, error)
 }
 
@@ -26,14 +26,14 @@ func NewAuditRepository(elastic elastic_search.Index) AuditRepository {
 	return auditRepository{elastic: elastic}
 }
 
-func (auditRepo auditRepository) GetByDateAndApiKey(t time.Time, apiKey string, size, offset uint64) ([]entity.Audit, int64, error) {
+func (auditRepo auditRepository) GetByDateAndApiKey(t time.Time, apiKey string, size, offset int) ([]entity.Audit, int64, error) {
 	results, err := search(auditRepo.elastic.Client.
 		Search(elastic_search.AuditIndex.GetByDate(t.Format("2006.01.02"))).
 		Query(elastic.NewTermQuery("apiKey", apiKey)).
 		Sort("@timestamp", false).
 		TrackTotalHits(true).
-		Size(int(size)).
-		From(int(offset)-1))
+		Size(size).
+		From(offset))
 
 	if errors.Is(err, ErrNoSuchIndex) {
 		return []entity.Audit{}, 0, nil

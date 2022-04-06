@@ -3,10 +3,10 @@ package resource
 import (
 	"errors"
 	"fmt"
-	"github.com/ZilDuck/indexer-api/internal/framework"
 	"github.com/ZilDuck/indexer-api/internal/helpers"
 	"github.com/ZilDuck/indexer-api/internal/mapper"
 	"github.com/ZilDuck/indexer-api/internal/repository"
+	"github.com/ZilDuck/indexer-api/internal/request"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -38,23 +38,20 @@ func (r AuditResource) GetStatus(c *gin.Context) {
 }
 
 func (r AuditResource) GetLogsForDate(c *gin.Context) {
+	req := request.NewPaginatedRequest(c)
+
 	month, err := getMonthOffset(c)
 	if err != nil {
 		handleError(c, err, err.Error(), http.StatusBadRequest)
 	}
 
-	pagination, err := framework.NewPaginationFromContext(c)
-	if err != nil {
-		handleError(c, err, "Invalid pagination parameters", http.StatusBadRequest)
-	}
-
-	audits, total, err := r.auditRepo.GetByDateAndApiKey(*month, helpers.ApiKey(c), pagination.Size, pagination.Offset)
+	audits, total, err := r.auditRepo.GetByDateAndApiKey(*month, helpers.ApiKey(c), req.Pagination.Size, req.Pagination.Offset)
 	if err != nil {
 		handleError(c, err, fmt.Sprintf("Failed to get audit logs"), http.StatusInternalServerError)
 		return
 	}
 
-	paginator(c, total, *pagination)
+	paginator(c, total, req.Pagination)
 	jsonResponse(c, mapper.AuditsToDtos(audits))
 	c.Header("Cache-Control", "no-store")
 }

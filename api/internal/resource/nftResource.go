@@ -90,17 +90,20 @@ func (r NftResource) GetContractNftMetadata(c *gin.Context) {
 }
 
 func (r NftResource) GetContractNftActions(c *gin.Context) {
+	req := request.NewPaginatedRequest(c)
+
 	contractAddr, tokenId, err := r.getContractAndTokenId(c)
 	if err != nil {
 		return
 	}
 
-	actions, _, err := r.actionRepo.GetByContractAndTokenId(helpers.Network(c), *contractAddr, *tokenId)
+	actions, total, err := r.actionRepo.GetByContractAndTokenId(helpers.Network(c), *contractAddr, *tokenId, req.Size, req.Offset)
 	if err != nil {
 		handleError(c, err, fmt.Sprintf("Failed to get %d nft of contract: %s", *tokenId, *contractAddr), http.StatusInternalServerError)
 		return
 	}
 
+	paginator(c, total, req.Pagination)
 	c.JSON(200, mapper.ActionsToDtos(actions))
 }
 

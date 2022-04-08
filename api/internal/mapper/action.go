@@ -28,7 +28,7 @@ func ActionToDto(e entity.NftAction) *dto.NftAction {
 		}
 	}
 	if matched == false {
-		return nil
+		//return nil
 	}
 
 	a := &dto.NftAction{

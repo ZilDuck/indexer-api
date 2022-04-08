@@ -9,7 +9,7 @@ import (
 )
 
 type NftActionRepository interface {
-	GetByContractAndTokenId(network, contractAddr string, tokenId uint64) ([]entity.NftAction, int64, error)
+	GetByContractAndTokenId(network, contractAddr string, tokenId uint64, size, offset int) ([]entity.NftAction, int64, error)
 }
 
 type nftActionRepository struct {
@@ -24,7 +24,7 @@ func NewActionRepository(elastic elastic_search.Index) NftActionRepository {
 	return nftActionRepository{elastic: elastic}
 }
 
-func (actionRepo nftActionRepository) GetByContractAndTokenId(network, contractAddr string, tokenId uint64) ([]entity.NftAction, int64, error) {
+func (actionRepo nftActionRepository) GetByContractAndTokenId(network, contractAddr string, tokenId uint64, size, offset int) ([]entity.NftAction, int64, error) {
 	query := elastic.NewBoolQuery().Must(
 		elastic.NewTermQuery("contract.keyword", contractAddr),
 		elastic.NewTermQuery("tokenId", tokenId),
@@ -34,7 +34,9 @@ func (actionRepo nftActionRepository) GetByContractAndTokenId(network, contractA
 		Search(elastic_search.NftActionIndex.Get(network)).
 		Query(query).
 		TrackTotalHits(true).
-		Sort("blockNum", true))
+		Size(size).
+		From(offset).
+		Sort("blockNum", false))
 
 	return actionRepo.findMany(result, err)
 }

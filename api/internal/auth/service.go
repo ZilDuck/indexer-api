@@ -35,7 +35,7 @@ func (s service) LoadClients() {
 
 	for idx := range loaded {
 		if loaded[idx].Active == true {
-			zap.S().Infof("Loaded client %s-%s", loaded[idx].Username, loaded[idx].ID)
+			zap.S().With(zap.String("apikey", loaded[idx].ApiKey)).Infof("Loaded client %s-%s", loaded[idx].Username, loaded[idx].ID)
 			clients = append(clients, loaded[idx])
 		}
 	}

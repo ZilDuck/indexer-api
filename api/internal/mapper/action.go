@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-var supportedActions = []string{"mint", "transfer", "burn"}
+var supportedActions = []string{"mint", "transfer", "burn", "sale", "listing", "delisting"}
 
 func ActionsToDtos(e []entity.NftAction) []dto.NftAction {
 	actions := make([]dto.NftAction, 0)
@@ -28,7 +28,7 @@ func ActionToDto(e entity.NftAction) *dto.NftAction {
 		}
 	}
 	if matched == false {
-		//return nil
+		return nil
 	}
 
 	a := &dto.NftAction{

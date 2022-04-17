@@ -15,7 +15,7 @@ var (
 	ErrorDatabaseConnection = errors.New("failed to connect to database")
 )
 
-func NewConnection(cfg config.DBConfig) (*gorm.DB, error) {
+func NewConnection(cfg config.DB) (*gorm.DB, error) {
 	connString := fmt.Sprintf("%s://%s:%s@%s:%d/%s?sslmode=%s&options=%s&sslrootcert=%s",
 		cfg.Dialect, cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Name, cfg.SslMode, cfg.Options, cfg.RootCA)
 		zap.L().With(zap.String("conn", connString)).Debug("Database Connection")

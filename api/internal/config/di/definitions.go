@@ -21,7 +21,7 @@ var Definitions = []dingo.Def{
 	{
 		Name: "elastic",
 		Build: func() (elastic_search.Index, error) {
-			elastic, err := elastic_search.New(config.Get().ElasticSearch, config.Get().Aws)
+			elastic, err := elastic_search.New(config.Get().ElasticSearch)
 			if err != nil {
 				zap.L().With(zap.Error(err)).Fatal("Failed to start ES")
 			}
@@ -90,7 +90,7 @@ var Definitions = []dingo.Def{
 			retryClient := retryablehttp.NewClient()
 			retryClient.RetryMax = 3
 
-			db, err := database.NewConnection(config.Get().DBConfig)
+			db, err := database.NewConnection(config.Get().DB)
 			if err != nil {
 				return nil, err
 			}

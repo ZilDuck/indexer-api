@@ -265,6 +265,19 @@ contractAddr | The NFT contract address to match
 tokenId      | The NFT token id to match
 
 
+### URL Parameters
+
+Parameter  | Description                                      | Default
+---------- | ------------------------------------------------ | -------
+size       | Number of results per pag (max 100)              | 10
+page       | The page number to return                        | 1
+
+### Pagination response headers
+
+Header        | Value
+------------- | -----
+X-Pagination  | `{"size": 10, "page": 1, "total_pages": 10, "total_elements": 100}`
+
 
 
 

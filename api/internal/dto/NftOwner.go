@@ -1,4 +1,4 @@
-package entity
+package dto
 
 type NftOwner struct {
 	Address  string   `json:"contract"`

@@ -10,9 +10,10 @@ import (
 )
 
 type NftRepository interface {
-	GetForAddress(network, ownerAddr string, shape string) ([]entity.NftOwner, error)
+	GetForAddress(network, ownerAddr string, shape string, details bool) ([]entity.NftOwner, error)
 	GetForContract(network, contractAddr string, size, offset int) ([]entity.Nft, int64, error)
 	GetForContractByTokenId(network, contractAddr string, tokenId uint64) (*entity.Nft, error)
+	GetForContractByTokenIds(network, contractAddr string, tokenIds []uint64) ([]entity.Nft, error)
 	GetForContractAttributes(network, contractAddr string, tokenIds []uint64) (entity.Attributes, error)
 }
 
@@ -28,7 +29,7 @@ func NewNftRepository(elastic elastic_search.Index) NftRepository {
 	return nftRepository{elastic: elastic}
 }
 
-func (nftRepo nftRepository) GetForAddress(network, ownerAddr string, shape string) ([]entity.NftOwner, error) {
+func (nftRepo nftRepository) GetForAddress(network, ownerAddr string, shape string, details bool) ([]entity.NftOwner, error) {
 	contracts := make([]entity.NftOwner, 0)
 
 	query := elastic.NewBoolQuery().Must(
@@ -89,6 +90,17 @@ func (nftRepo nftRepository) GetForAddress(network, ownerAddr string, shape stri
 		}
 	}
 
+	if details == true {
+		for i := range contracts {
+			nfts, err := nftRepo.GetForContractByTokenIds(network, contracts[i].Address, contracts[i].TokenIds)
+			if err != nil {
+				return nil, err
+			}
+			contracts[i].NFTs = nfts
+			contracts[i].TokenIds = nil
+		}
+	}
+
 	return contracts, nil
 }
 
@@ -116,6 +128,27 @@ func (nftRepo nftRepository) GetForContractByTokenId(network, contractAddr strin
 		Size(1))
 
 	return nftRepo.findOne(result, err)
+}
+
+func (nftRepo nftRepository) GetForContractByTokenIds(network, contractAddr string, tokenIds []uint64) ([]entity.Nft, error) {
+	values := make([]interface{}, len(tokenIds))
+	if len(tokenIds) != 0 {
+		for i, v := range tokenIds {
+			values[i] = v
+		}
+	}
+	query := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("contract.keyword", contractAddr),
+		elastic.NewTermsQuery("tokenId", values...),
+	)
+
+	result, err := search(nftRepo.elastic.Client.
+		Search(elastic_search.NftIndex.Get(network)).
+		Query(query).
+		Size(len(tokenIds)))
+
+	nfts, _, err := nftRepo.findMany(result, err)
+	return nfts, err
 }
 
 func (nftRepo nftRepository) GetForContractAttributes(network, contractAddr string, tokenIds []uint64) (entity.Attributes, error) {

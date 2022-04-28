@@ -3,7 +3,7 @@
 ## Get NFTs
 
 ```shell
-curl "https://api.zildexr.com/nft/0x8a79bac7a6383211ae902f34e86c6b729906346d" \
+curl "https://api.zildexr.com/nft/0x8a79bac7a6383211ae902f34e86c6b729906346d?size=10&page=2" \
      -H "X_API_KEY: yourZildexrApiKey"
 ```
 
@@ -16,7 +16,7 @@ var requestOptions = {
   }
 };
 
-fetch("https://api.zildexr.com/nft/0x8a79bac7a6383211ae902f34e86c6b729906346d", requestOptions)
+fetch("https://api.zildexr.com/nft/0x8a79bac7a6383211ae902f34e86c6b729906346d??size=10&page=2", requestOptions)
   .then(response => response.text())
   .then(result => console.log(result))
   .catch(error => console.log('error', error));
@@ -43,7 +43,8 @@ fetch("https://api.zildexr.com/nft/0x8a79bac7a6383211ae902f34e86c6b729906346d", 
         ...
       ]
     }
-  }
+  },
+  ...
 ]
 ```
 

@@ -31,11 +31,27 @@ fetch("https://api.zildexr.com/address/0x0d7cad239adeb9fa74205fb86318db21695b565
     "zrc6": false,
     "tokenIds": [39]
   },
+  ...
+]
+```
+
+> and when details=true:
+
+```json
+[
   {
-    "contract": "0x8a79bac7a6383211ae902f34e86c6b729906346d",
-    "zrc6": true,
-    "tokenIds": [1, 550, 574, 578, 2426, 2427, 2428, 2429]
-  }
+    "contract": "0xd793f378a925b9f0d3c4b6ee544d31c707899386",
+    "zrc6": false,
+    "nfts": [
+      {
+        "contract": "0xd793f378a925b9f0d3c4b6ee544d31c707899386",
+        "name": "The Bear Market",
+        "symbol": "BEAR",
+        ...
+      }
+    ]
+  },
+  ...
 ]
 ```
 
@@ -51,6 +67,11 @@ Parameter    | Description
 ------------ | ---------------------------------
 ownerAddr    | The owner address to match
 
+### Query parameters
+
+Parameter    | Description                                       | Default
+------------ | --------------------------------------------------|--------------
+details      | Should the response provide full NFT information? | false
 
 
 ## Get Contracts owned by address

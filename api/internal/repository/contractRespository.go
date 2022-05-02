@@ -65,14 +65,9 @@ func (contractRepo contactRepository) GetContract(network, contractAddr string) 
 }
 
 func (contractRepo contactRepository) GetContracts(network string, contractAddrs ...string) ([]entity.Contract, error) {
-	values := make([]interface{}, len(contractAddrs))
-	for i, v := range contractAddrs {
-		values[i] = v
-	}
-
 	result, err := search(contractRepo.elastic.Client.
 		Search(elastic_search.ContractIndex.Get(network)).
-		Query(elastic.NewTermsQuery("address.keyword", values...)).
+		Query(elastic.NewTermsQuery("address.keyword", valuesFromString(contractAddrs)...)).
 		Sort("blockNum", false).
 		TrackTotalHits(true).
 		Size(100))

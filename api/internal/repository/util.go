@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"github.com/ZilDuck/indexer-api/internal/entity"
 	"github.com/olivere/elastic/v7"
 	"go.uber.org/zap"
 	"strings"
@@ -44,4 +45,34 @@ func count(countService *elastic.CountService) (int64, error) {
 	}
 
 	return result, err
+}
+
+func valuesFromUint64(elements []uint64) []interface{} {
+	values := make([]interface{}, len(elements))
+	if len(elements) != 0 {
+		for i, v := range elements {
+			values[i] = v
+		}
+	}
+	return values
+}
+
+func valuesFromString(elements []string) []interface{} {
+	values := make([]interface{}, len(elements))
+	if len(elements) != 0 {
+		for i, v := range elements {
+			values[i] = v
+		}
+	}
+	return values
+}
+
+func valuesFromActionTypes(elements []entity.ActionType) []interface{} {
+	values := make([]interface{}, len(elements))
+	if len(elements) != 0 {
+		for i, v := range elements {
+			values[i] = string(v)
+		}
+	}
+	return values
 }

@@ -211,7 +211,8 @@ tokenId      | The NFT token id to match
 ## Get NFT actions
 
 ```shell
-curl "https://api.zildexr.com/nft/0x8a79bac7a6383211ae902f34e86c6b729906346d/1/actions" \
+curl "https://api.zildexr.com/nft/0x8a79bac7a6383211ae902f34e86c6b729906346d/1/actions" +  
+     "?page=1&size=10&actions=listing,delisting,sale" \
      -H "X_API_KEY: yourZildexrApiKey"
 ```
 
@@ -224,7 +225,8 @@ var requestOptions = {
   }
 };
 
-fetch("https://api.zildexr.com/nft/0x8a79bac7a6383211ae902f34e86c6b729906346d/1/actions", requestOptions)
+fetch("https://api.zildexr.com/nft/0x8a79bac7a6383211ae902f34e86c6b729906346d/1/actions" + 
+      "?page=1&size=10&actions=listing,delisting,sale", requestOptions)
   .then(response => response.text())
   .then(result => console.log(result))
   .catch(error => console.log('error', error));
@@ -272,6 +274,7 @@ Parameter  | Description                                      | Default
 ---------- | ------------------------------------------------ | -------
 size       | Number of results per pag (max 100)              | 10
 page       | The page number to return                        | 1
+actions    | Filter the actions returned                      | empty
 
 ### Pagination response headers
 
@@ -279,6 +282,15 @@ Header        | Value
 ------------- | -----
 X-Pagination  | `{"size": 10, "page": 1, "total_pages": 10, "total_elements": 100}`
 
+
+Supported Actions | &nbsp;
+----------------- | -----
+ mint             | NFT Minting actions
+ transfer         | NFT transfer actions
+ burn             | NFT burning actions
+ sale             | Marketplace sale actions
+ listing          | Marketplace listing actions
+ delisting        | Marketplace delisting actions
 
 
 

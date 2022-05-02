@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/ZilDuck/indexer-api/internal/entity"
 	"github.com/ZilDuck/indexer-api/internal/helpers"
 	"github.com/ZilDuck/indexer-api/internal/mapper"
 	"github.com/ZilDuck/indexer-api/internal/messenger"
@@ -97,7 +98,7 @@ func (r NftResource) GetContractNftActions(c *gin.Context) {
 		return
 	}
 
-	actions, total, err := r.actionRepo.GetByContractAndTokenId(helpers.Network(c), *contractAddr, *tokenId, req.Size, req.Offset)
+	actions, total, err := r.actionRepo.GetByContractAndTokenId(helpers.Network(c), *contractAddr, *tokenId, r.getActionTypes(c), req.Size, req.Offset)
 	if err != nil {
 		handleError(c, err, fmt.Sprintf("Failed to get %d nft of contract: %s", *tokenId, *contractAddr), http.StatusInternalServerError)
 		return
@@ -157,4 +158,20 @@ func (r NftResource) getContractAndTokenId(c *gin.Context) (*string, *uint64, er
 	}
 
 	return &contractAddr, &tokenId, nil
+}
+
+func (r NftResource) getActionTypes(c *gin.Context) []entity.ActionType {
+	var actionTypes []entity.ActionType
+
+	actions := strings.Split(c.Query("actions"), ",")
+
+	for _, actionType := range entity.ActionTypes {
+		for _, action := range actions {
+			if string(actionType) == action {
+				actionTypes = append(actionTypes, actionType)
+			}
+		}
+	}
+
+	return actionTypes
 }

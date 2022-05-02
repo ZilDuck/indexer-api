@@ -23,7 +23,7 @@ func ActionsToDtos(e []entity.NftAction) []dto.NftAction {
 func ActionToDto(e entity.NftAction) *dto.NftAction {
 	matched := false
 	for _, supportedAction := range supportedActions {
-		if e.Action == supportedAction {
+		if string(e.Action) == supportedAction {
 			matched = true
 		}
 	}

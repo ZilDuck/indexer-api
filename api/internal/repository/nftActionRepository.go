@@ -9,7 +9,7 @@ import (
 )
 
 type NftActionRepository interface {
-	GetByContractAndTokenId(network, contractAddr string, tokenId uint64, size, offset int) ([]entity.NftAction, int64, error)
+	GetByContractAndTokenId(network, contractAddr string, tokenId uint64, actionTypes[]entity.ActionType, size, offset int) ([]entity.NftAction, int64, error)
 }
 
 type nftActionRepository struct {
@@ -24,15 +24,19 @@ func NewActionRepository(elastic elastic_search.Index) NftActionRepository {
 	return nftActionRepository{elastic: elastic}
 }
 
-func (actionRepo nftActionRepository) GetByContractAndTokenId(network, contractAddr string, tokenId uint64, size, offset int) ([]entity.NftAction, int64, error) {
-	query := elastic.NewBoolQuery().Must(
+func (actionRepo nftActionRepository) GetByContractAndTokenId(network, contractAddr string, tokenId uint64, actionTypes[]entity.ActionType, size, offset int) ([]entity.NftAction, int64, error) {
+	queries := []elastic.Query{
 		elastic.NewTermQuery("contract.keyword", contractAddr),
 		elastic.NewTermQuery("tokenId", tokenId),
-	)
+	}
+
+	if len(actionTypes) != 0 {
+		queries = append(queries, elastic.NewTermsQuery("action", valuesFromActionTypes(actionTypes)...))
+	}
 
 	result, err := search(actionRepo.elastic.Client.
 		Search(elastic_search.NftActionIndex.Get(network)).
-		Query(query).
+		Query(elastic.NewBoolQuery().Must(queries...)).
 		TrackTotalHits(true).
 		Size(size).
 		From(offset).

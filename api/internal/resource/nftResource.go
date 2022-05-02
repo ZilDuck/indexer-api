@@ -74,20 +74,19 @@ func (r NftResource) GetContractNftMetadata(c *gin.Context) {
 		return
 	}
 
+	details := strings.ToLower(c.DefaultQuery("details", "false"))
+
 	nft, err := r.nftRepo.GetForContractByTokenId(helpers.Network(c), *contractAddr, *tokenId)
 	if err != nil {
 		handleError(c, err, fmt.Sprintf("Failed to get %d nft of contract: %s", *tokenId, *contractAddr), http.StatusInternalServerError)
 		return
 	}
 
-	md, err := r.metadata.GetZrc6Metadata(*nft)
-	if err != nil {
-		msg := fmt.Sprintf("Failed to get metadata for %d nft of contract: %s", tokenId, *contractAddr)
-		handleError(c, err, msg, http.StatusInternalServerError)
-		return
+	if details == "true" {
+		c.JSON(200, nft.Metadata)
+	} else {
+		c.JSON(200, nft.Metadata.Properties)
 	}
-
-	c.JSON(200, md)
 }
 
 func (r NftResource) GetContractNftActions(c *gin.Context) {

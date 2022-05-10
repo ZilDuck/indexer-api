@@ -20,4 +20,6 @@ jobs:
       - name: Build Docker image
         id: build-image
         run: |
+          "pwd"
+          "ls ${GITHUB_WORKSPACE}"
           "${GITHUB_WORKSPACE}/api/bin/build ${IMAGE_TAG}"

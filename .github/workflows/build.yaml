@@ -16,10 +16,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
+      - name: Set outputs
+        id: vars
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
       - name: Build Docker image
         id: build-image
+        working-directory: ./api
         run: |
-          "pwd"
-          "ls"
-          "sh api/bin/build ${IMAGE_TAG}"
+          "docker build -t indexer/api:${{ steps.vars.outputs.sha_short }} ."

@@ -23,4 +23,5 @@ jobs:
         id: build-image
         working-directory: ./api
         run: |
+          "which docker"
           "docker build -t indexer/api:${{ steps.vars.outputs.sha_short }} ."

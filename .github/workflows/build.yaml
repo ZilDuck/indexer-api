@@ -30,4 +30,4 @@ jobs:
       - name: Build Docker image
         id: build-image
         working-directory: ./api
-        run: docker build -t indexer/api:${{ steps.vars.outputs.sha_short }} $GITHUB_WORKSPACE
+        run: ./bin/build ${{ steps.vars.outputs.sha_short }}

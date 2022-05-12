@@ -1,8 +1,5 @@
 FROM golang:alpine AS builder
 
-# hadolint ignore=DL3018
-RUN apk update && apk add --no-cache git gcc g++ make libc-dev pkgconfig curl
-
 RUN adduser -D -u 1001 -g '' appuser
 WORKDIR $GOPATH/src/mypackage/myapp/
 COPY . .

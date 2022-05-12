@@ -25,7 +25,7 @@ jobs:
         run: pwd
 
       - name: ls GITHUB_WORKSPACE
-        run: ls -ln $GITHUB_WORKSPACE
+        run: ls -ln $GITHUB_WORKSPACE/api
 
       - name: Build Docker image
         id: build-image

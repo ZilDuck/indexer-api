@@ -21,6 +21,11 @@ jobs:
         id: vars
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
+      - name: ls GITHUB_WORKSPACE
+        run: |
+          pwd
+          ls -ln $GITHUB_WORKSPACE
+
       - name: Build Docker image
         id: build-image
         working-directory: ./api

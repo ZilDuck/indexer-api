@@ -1,8 +1,6 @@
 name: Deploy Indexer API
 
 on:
-  pull_request:
-    branches: [ master ]
   workflow_dispatch:
     inputs:
       logLevel:

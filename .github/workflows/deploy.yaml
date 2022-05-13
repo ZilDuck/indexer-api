@@ -1,15 +1,10 @@
 name: Deploy Indexer API
 
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
-      tags:
-        required: false
-        description: 'Test scenario tags'
 
 jobs:
   printInputs:

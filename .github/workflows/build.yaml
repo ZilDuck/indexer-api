@@ -3,8 +3,8 @@ name: Build the API
 on:
   pull_request:
     branches: [ master ]
-    paths:
-      - 'api/**'
+#    paths:
+#      - 'api/**'
 
 env:
   IMAGE_TAG: ${{ github.sha }}

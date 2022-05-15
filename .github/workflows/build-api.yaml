@@ -46,7 +46,7 @@ jobs:
 
       - name: Build API Docker image
         working-directory: ./api
-        run: ./api/bin/build ${{ steps.commitTag.outputs.tag }}
+        run: ./bin/build ${{ steps.commitTag.outputs.tag }}
 
       - name: Build Docs Docker image
         working-directory: ./docs

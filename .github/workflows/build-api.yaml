@@ -44,11 +44,13 @@ jobs:
           [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
           [[ "${{ github.event_name }}" = "push" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
 
-      - name: Build Docker images
-        working-directory: .
-        run: |
-          ./api/bin/build ${{ steps.commitTag.outputs.tag }}
-          ./docs/bin/build ${{ steps.vars.outputs.sha_short }}
+      - name: Build API Docker image
+        working-directory: ./api
+        run: ./api/bin/build ${{ steps.commitTag.outputs.tag }}
+
+      - name: Build Docs Docker image
+        working-directory: ./docs
+        run: ./bin/build ${{ steps.vars.outputs.sha_short }}
 
       - name: Create a GitHub release
         if: github.event_name == 'push'

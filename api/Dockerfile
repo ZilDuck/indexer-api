@@ -1,8 +1,5 @@
 FROM golang:alpine AS builder
 
-# hadolint ignore=DL3018
-RUN apk update && apk add --no-cache git gcc g++ make libc-dev pkgconfig curl
-
 RUN adduser -D -u 1001 -g '' appuser
 WORKDIR $GOPATH/src/mypackage/myapp/
 COPY . .
@@ -10,6 +7,7 @@ COPY . .
 RUN go env CGO_ENABLED
 RUN go mod download -x
 RUN go mod verify
+RUN go run ./cmd/internal/injectDependencies/main.go ./generated
 
 RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /go/bin/api ./cmd/api
 

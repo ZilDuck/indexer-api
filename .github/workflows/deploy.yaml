@@ -25,7 +25,7 @@ jobs:
         with:
           repository: ZilDuck/indexer-automation
           ref:        master
-          token:      '${{ secrets.ACCESS_TOKEN }}'
+          token:      ${{ secrets.ACCESS_TOKEN }}
       - name: Setup Helm Chart
         run: |
           mv /home/runner/work/indexer-api/indexer-automation/deployments/zildexr/api .

@@ -58,4 +58,4 @@ jobs:
         with:
           tag: ${{ steps.commitTag.outputs.tag }}
           name: Release v${{ steps.commitTag.outputs.tag }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.ACCESS_TOKEN }}

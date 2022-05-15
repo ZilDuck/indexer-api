@@ -34,7 +34,7 @@ jobs:
         id: previousTag
         uses: WyriHaximus/github-action-get-previous-tag@v1
         with:
-          fallback: 1.0.0
+          fallback: 0.3.0
 
       - name: "Get next minor version"
         id: nextTag
@@ -52,3 +52,10 @@ jobs:
         id: build-image
         working-directory: ./api
         run: ./bin/build ${{ steps.commitTag.outputs.tag }}
+
+      - name: Create a GitHub release
+        if: github.event_name == 'push'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.commitTag.outputs.tag }}
+          name: Release v${{ steps.commitTag.outputs.tag }}

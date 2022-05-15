@@ -1,14 +1,10 @@
-name: Build the API
+name: Build
 
 on:
   pull_request:
     branches: [master]
-#    paths:
-#      - 'api/**'
   push:
     branches: [master]
-    paths:
-      - 'api/**'
 
 env:
   IMAGE_TAG: ${{ github.sha }}
@@ -30,13 +26,13 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
 
-      - name: "Get Previous tag"
+      - name: Get Previous tag
         id: previousTag
         uses: WyriHaximus/github-action-get-previous-tag@v1
         with:
           fallback: 0.3.0
 
-      - name: "Get next minor version"
+      - name: Get next minor version
         id: nextTag
         uses: WyriHaximus/github-action-next-semvers@v1
         with:
@@ -48,10 +44,11 @@ jobs:
           [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
           [[ "${{ github.event_name }}" = "push" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
 
-      - name: Build Docker image
-        id: build-image
-        working-directory: ./api
-        run: ./bin/build ${{ steps.commitTag.outputs.tag }}
+      - name: Build Docker images
+        working-directory: .
+        run: |
+          ./api/bin/build ${{ steps.commitTag.outputs.tag }}
+          ./docs/bin/build ${{ steps.vars.outputs.sha_short }}
 
       - name: Create a GitHub release
         if: github.event_name == 'push'

@@ -1,4 +1,4 @@
-name: Deploy Indexer API
+name: Deploy
 
 on:
   workflow_dispatch:
@@ -18,16 +18,19 @@ on:
 jobs:
   deploy:
     name: deploy
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v1
         with:
-          name: ZilDuck/indexer-automation
-      - name: Helm
-        uses: 'deliverybot/helm@v1'
+          repository: ZilDuck/indexer-automation
+          ref:        master
+          token:      '${{ secrets.ACCESS_TOKEN }}'
+      - name: Setup Helm Chart
+        run: |
+          mv /home/runner/work/indexer-api/indexer-automation/deployments/zildexr/api .
+      - name: Deploy
+        uses: WyriHaximus/github-action-helm3@v2
         with:
-          namespace: zildexr-staging
-          chart:     ./deployments/zildexr/api
-          values: "{image.tag: ${{ github.event.inputs.tag }}}"
-
+          exec: helm upgrade --install api ./api -f ./api/config/${{ github.event.inputs.environment }}.yaml --namespace zildexr-${{ github.event.inputs.environment }} --atomic --set=image.tag=${{ github.event.inputs.tag }}
+          kubeconfig: '${{ secrets.KUBECONFIG }}'

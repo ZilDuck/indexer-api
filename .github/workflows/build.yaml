@@ -1,0 +1,60 @@
+name: Build
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+env:
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
+
+      - name: Get Previous tag
+        id: previousTag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+        with:
+          fallback: 0.3.0
+
+      - name: Get next minor version
+        id: nextTag
+        uses: WyriHaximus/github-action-next-semvers@v1
+        with:
+          version: ${{ steps.previoustag.outputs.tag }}
+
+      - name: Shart commit tag
+        id: commitTag
+        run: |
+          [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
+          [[ "${{ github.event_name }}" = "push" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
+
+      - name: Build API Docker image
+        working-directory: ./api
+        run: ./bin/build ${{ steps.commitTag.outputs.tag }}
+
+      - name: Build Docs Docker image
+        working-directory: ./docs
+        run: ./bin/build ${{ steps.commitTag.outputs.tag }}
+
+      - name: Create a GitHub release
+        if: github.event_name == 'push'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.commitTag.outputs.tag }}
+          name: Release v${{ steps.commitTag.outputs.tag }}

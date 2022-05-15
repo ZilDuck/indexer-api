@@ -1,0 +1,36 @@
+name: Deploy Docs
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        required:    true
+        description: Which environment to deploy?
+        type:        choice
+        options:
+          - testnet
+          - mainnet
+      tag:
+        required:    true
+        description: ECR tag
+        default:     latest
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          repository: ZilDuck/indexer-automation
+          ref:        master
+          token:      '${{ secrets.ACCESS_TOKEN }}'
+      - name: Setup Helm Chart
+        run: |
+          mv /home/runner/work/indexer-api/indexer-automation/deployments/zildexr/docs .
+      - name: Deploy
+        uses: WyriHaximus/github-action-helm3@v2
+        with:
+          exec: helm upgrade --install api-docs ./docs -f ./api/config/${{ github.event.inputs.environment }}.yaml --namespace zildexr-${{ github.event.inputs.environment }} --atomic --set=image.tag=${{ github.event.inputs.tag }}
+          kubeconfig: '${{ secrets.KUBECONFIG }}'

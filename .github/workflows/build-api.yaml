@@ -45,8 +45,8 @@ jobs:
       - name: Shart commit tag
         id: commitTag
         run: |
-          [[ "${{ github.event.action }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
-          [[ "${{ github.event.action }}" = "push" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
+          [[ "${{ github.action }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
+          [[ "${{ github.action }}" = "push" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
 
       - name: Build Docker image
         id: build-image

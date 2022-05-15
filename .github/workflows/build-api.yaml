@@ -50,7 +50,7 @@ jobs:
 
       - name: Build Docs Docker image
         working-directory: ./docs
-        run: ./bin/build ${{ steps.vars.outputs.sha_short }}
+        run: ./bin/build ${{ steps.commitTag.outputs.tag }}
 
       - name: Create a GitHub release
         if: github.event_name == 'push'

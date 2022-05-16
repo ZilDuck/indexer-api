@@ -40,7 +40,7 @@ jobs:
         with:
           version: ${{ steps.previousTag.outputs.tag }}
 
-      - name: Shart commit tag
+      - name: Set commit tag
         id: commitTag
         run: |
           [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.semVars.outputs.patch }}-$(git rev-parse --short HEAD)" || true

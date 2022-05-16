@@ -25,9 +25,9 @@ jobs:
         with:
           repository: ZilDuck/automation@master
           token: ${{ secrets.ACCESS_TOKEN }}
-          path: ../actions/deploy
+          path: ./actions/deploy
       - name: Deploy
-        uses: ../actions/deploy
+        uses: ./actions/deploy
         with:
           app:         zildexr
           service:     api

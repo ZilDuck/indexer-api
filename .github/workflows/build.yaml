@@ -32,8 +32,8 @@ jobs:
         with:
           fallback: 0.3.0
 
-      - name: Get next minor version
-        id: nextTag
+      - name: Get next semantic version
+        id: semVars
         uses: WyriHaximus/github-action-next-semvers@v1
         with:
           version: ${{ steps.previousTag.outputs.tag }}
@@ -41,8 +41,8 @@ jobs:
       - name: Shart commit tag
         id: commitTag
         run: |
-          [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.nextTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
-          [[ "${{ github.event_name }}" = "push" ]] && echo "::set-output name=tag::${{ steps.nextTag.outputs.tag }}" || true
+          [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.semVars.outputs.minor }}-$(git rev-parse --short HEAD)" || true
+          [[ "${{ github.event_name }}" = "push" ]] && echo "::set-output name=tag::${{ steps.semVars.outputs.minor }}" || true
 
       - name: Build API Docker image
         working-directory: ./api

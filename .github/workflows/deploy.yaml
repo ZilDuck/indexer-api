@@ -23,7 +23,8 @@ jobs:
       - name: Load Automation
         uses: actions/checkout@v2
         with:
-          repository: ZilDuck/automation@master
+          repository: ZilDuck/automation
+          ref: master
           token: ${{ secrets.ACCESS_TOKEN }}
           path: ./actions/deploy
       - name: Deploy

@@ -41,8 +41,8 @@ jobs:
       - name: Shart commit tag
         id: commitTag
         run: |
-          [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.semVars.outputs.minor }}-$(git rev-parse --short HEAD)" || true
-          [[ "${{ github.event_name }}" = "push" ]] && echo "::set-output name=tag::${{ steps.semVars.outputs.minor }}" || true
+          [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.semVars.outputs.patch }}-$(git rev-parse --short HEAD)" || true
+          [[ "${{ github.event_name }}" = "push" ]] && echo "::set-output name=tag::${{ steps.semVars.outputs.patch }}" || true
 
       - name: Build API Docker image
         working-directory: ./api
@@ -56,6 +56,6 @@ jobs:
         if: github.event_name == 'push'
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ steps.commitTag.outputs.tag }}
-          name: Release v${{ steps.commitTag.outputs.tag }}
+          tag: ${{ steps.semVars.outputs.patch }}
+          name: Release ${{ steps.semVars.outputs.v_patch }}
           token: ${{ secrets.ACCESS_TOKEN }}

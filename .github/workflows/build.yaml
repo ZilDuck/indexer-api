@@ -26,23 +26,23 @@ jobs:
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
 
-      - name: Get Previous tag
+      - name: Get previous tag
         id: previousTag
         uses: WyriHaximus/github-action-get-previous-tag@v1
         with:
           fallback: 0.3.0
 
-      - name: Get next minor version
-        id: nextTag
+      - name: Get next semantic version
+        id: semVars
         uses: WyriHaximus/github-action-next-semvers@v1
         with:
-          version: ${{ steps.previoustag.outputs.tag }}
+          version: ${{ steps.previousTag.outputs.tag }}
 
       - name: Shart commit tag
         id: commitTag
         run: |
-          [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}-$(git rev-parse --short HEAD)" || true
-          [[ "${{ github.event_name }}" = "push" ]] && echo "::set-output name=tag::${{ steps.previousTag.outputs.tag }}" || true
+          [[ "${{ github.event_name }}" = "pull_request" ]] && echo "::set-output name=tag::${{ steps.semVars.outputs.patch }}-$(git rev-parse --short HEAD)" || true
+          [[ "${{ github.event_name }}" = "push" ]] && echo "::set-output name=tag::${{ steps.semVars.outputs.patch }}" || true
 
       - name: Build API Docker image
         working-directory: ./api
@@ -56,6 +56,6 @@ jobs:
         if: github.event_name == 'push'
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ steps.commitTag.outputs.tag }}
-          name: Release v${{ steps.commitTag.outputs.tag }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.semVars.outputs.patch }}
+          name: Release ${{ steps.semVars.outputs.v_patch }}
+          token: ${{ secrets.ACCESS_TOKEN }}

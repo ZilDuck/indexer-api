@@ -3,6 +3,7 @@ package mapper
 import (
 	"github.com/ZilDuck/indexer-api/internal/dto"
 	"github.com/ZilDuck/indexer-api/internal/entity"
+	"github.com/Zilliqa/gozilliqa-sdk/util"
 )
 
 func ContractsToDtos(e []entity.Contract) []dto.Contract {
@@ -17,7 +18,7 @@ func ContractsToDtos(e []entity.Contract) []dto.Contract {
 func ContractToDto(e entity.Contract) dto.Contract {
 	contract := dto.Contract{
 		Name:            e.Name,
-		Address:         e.Address,
+		Address:         util.ToCheckSumAddress(e.Address),
 		BlockNum:        e.BlockNum,
 		Data:            mapData(e.Data),
 		MutableParams:   mapParams(e.MutableParams),

@@ -3,6 +3,7 @@ package mapper
 import (
 	"github.com/ZilDuck/indexer-api/internal/dto"
 	"github.com/ZilDuck/indexer-api/internal/entity"
+	"github.com/Zilliqa/gozilliqa-sdk/util"
 	"strconv"
 )
 
@@ -38,11 +39,13 @@ func ActionToDto(e entity.NftAction) *dto.NftAction {
 	}
 
 	if e.From != "" {
-		a.From = &e.From
+		from := util.ToCheckSumAddress(e.From)
+		a.From = &from
 	}
 
 	if e.To != "" {
-		a.To = &e.To
+		to := util.ToCheckSumAddress(e.To)
+		a.To = &to
 	}
 
 	if e.Marketplace != "" {

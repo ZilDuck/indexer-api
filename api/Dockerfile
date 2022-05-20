@@ -1,5 +1,11 @@
 FROM golang:alpine AS builder
 
+RUN apk add curl unzip
+
+RUN curl -Ls https://releases.hashicorp.com/consul-template/0.29.0/consul-template_0.29.0_linux_amd64.zip -o /usr/local/bin/consul-template.zip
+RUN cd /usr/local/bin && unzip /usr/local/bin/consul-template.zip
+RUN chmod +x /usr/local/bin/consul-template
+
 RUN adduser -D -u 1001 -g '' appuser
 WORKDIR $GOPATH/src/mypackage/myapp/
 COPY . .
@@ -19,5 +25,6 @@ WORKDIR /app
 
 RUN mkdir /app/logs
 
-COPY --from=builder /etc/passwd /etc/passwd
-COPY --from=builder /go/bin/api /app/api
+COPY --from=builder /usr/local/bin/consul-template /usr/local/bin/consul-template
+COPY --from=builder /etc/passwd                    /etc/passwd
+COPY --from=builder /go/bin/api                    /app/api

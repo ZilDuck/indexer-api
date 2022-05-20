@@ -3,5 +3,5 @@
 set -e
 
 /usr/local/bin/consul-template \
-  -config "/etc/consul_template.d" \
+  -config "/etc/consul-template.d" \
   -exec   "/app/api"

@@ -28,3 +28,4 @@ RUN mkdir /app/logs
 COPY --from=builder /usr/local/bin/consul-template /usr/local/bin/consul-template
 COPY --from=builder /etc/passwd                    /etc/passwd
 COPY --from=builder /go/bin/api                    /app/api
+COPY                ./bin/run.sh                   /app/run.sh

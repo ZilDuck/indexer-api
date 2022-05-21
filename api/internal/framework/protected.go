@@ -2,7 +2,6 @@ package framework
 
 import (
 	"github.com/ZilDuck/indexer-api/internal/auth"
-	"github.com/ZilDuck/indexer-api/internal/config"
 	"github.com/ZilDuck/indexer-api/internal/helpers"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -48,13 +47,13 @@ func ProtectedAdmin(c *gin.Context) {
 		return
 	}
 
-	for _, adminId := range config.Get().AdminIds {
-		if client.ID.String() == adminId {
-			zap.L().With(zap.String("client", client.Username)).Info("Authenticated as Admin")
-			c.Next()
-			return
-		}
-	}
+	//for _, adminId := range config.Get().AdminIds {
+	//	if client.ID.String() == adminId {
+	//		zap.L().With(zap.String("client", client.Username)).Info("Authenticated as Admin")
+	//		c.Next()
+	//		return
+	//	}
+	//}
 
 	c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"code": http.StatusNotFound, "message": "Resource not found"})
 	return

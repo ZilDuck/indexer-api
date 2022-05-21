@@ -20,9 +20,12 @@ func NewConnection(cfg config.DB) (*gorm.DB, error) {
 		cfg.Dialect, cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Name, cfg.SslMode, cfg.Options, cfg.RootCA)
 		zap.L().With(zap.String("conn", connString)).Debug("Database Connection")
 
-	db, err := gorm.Open(postgres.Open(connString), &gorm.Config{
-		NamingStrategy: schema.NamingStrategy{TablePrefix: cfg.Name+"."}})
+	dbConfig := &gorm.Config{}
+	if cfg.Schema != "" {
+		dbConfig = &gorm.Config{NamingStrategy: schema.NamingStrategy{TablePrefix: cfg.Schema+"."}}
+	}
 
+	db, err := gorm.Open(postgres.Open(connString), dbConfig)
 	if err != nil {
 		zap.L().With(zap.Error(err)).Error("error configuring the database")
 		err = ErrorDatabaseConnection

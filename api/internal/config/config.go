@@ -43,6 +43,7 @@ type DB struct {
 	Host     string
 	Port     int
 	Name     string
+	Schema   string
 	SslMode  string
 	Options  string
 	RootCA   string

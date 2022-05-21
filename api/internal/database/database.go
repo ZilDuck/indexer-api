@@ -22,7 +22,7 @@ func NewConnection(cfg config.DB) (*gorm.DB, error) {
 
 	dbConfig := &gorm.Config{}
 	if cfg.Schema != "" {
-		dbConfig = &gorm.Config{NamingStrategy: schema.NamingStrategy{TablePrefix: cfg.Name+"."}}
+		dbConfig = &gorm.Config{NamingStrategy: schema.NamingStrategy{TablePrefix: cfg.Schema+"."}}
 	}
 
 	db, err := gorm.Open(postgres.Open(connString), dbConfig)

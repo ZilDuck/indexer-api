@@ -3,6 +3,7 @@ package mapper
 import (
 	"github.com/ZilDuck/indexer-api/internal/dto"
 	"github.com/ZilDuck/indexer-api/internal/entity"
+	"github.com/Zilliqa/gozilliqa-sdk/util"
 )
 
 func NftOwnerToDtos(e []entity.NftOwner) []dto.NftOwner {
@@ -16,7 +17,7 @@ func NftOwnerToDtos(e []entity.NftOwner) []dto.NftOwner {
 
 func NftOwnerToDto(e entity.NftOwner) dto.NftOwner {
 	return dto.NftOwner{
-		Address: e.Address,
+		Address: util.ToCheckSumAddress(e.Address),
 		ZRC6: e.ZRC6,
 		TokenIds: e.TokenIds,
 		NFTs: NftToDtos(e.NFTs),

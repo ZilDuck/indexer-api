@@ -1,0 +1,4 @@
+replicaCount: 1
+
+ingress:
+  host: api-docs-testnet.zildexr.com

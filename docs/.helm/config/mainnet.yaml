@@ -1,0 +1,4 @@
+replicaCount: 2
+
+ingress:
+  host: api-docs.zildexr.com

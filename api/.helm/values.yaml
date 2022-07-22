@@ -1,0 +1,38 @@
+image:
+  repository: 465700395685.dkr.ecr.eu-west-1.amazonaws.com/indexer/api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+debug:   false
+
+elasticSearch:
+  host:        https://search.zildexr.com
+  username:    elastic
+  password:    gyXGCRTvHuNjLKEXQUH98kggRLEfH6rP
+  sniff:       false
+  healthCheck: false
+  debug:       false
+
+db:
+  dialect:  postgresql
+  port:     5432
+  username: ~
+  password: ~
+  host:     ~
+  name:     ~
+  schema:   ~
+  ssl_mode: ~
+  options:  ~
+  root_ca:  ~
+
+aws:
+  access_key: AKIAWY3PIDKSWL5ICD7E
+  secret_key: 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
+  region:     eu-west-1
+
+audit:
+  dir: /var/audit

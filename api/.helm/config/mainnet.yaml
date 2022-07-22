@@ -1,0 +1,7 @@
+cdn:
+  host: https://cdn.zildexr.com
+
+ingress:
+  host: api.zildexr.com
+
+replicaCount: 4

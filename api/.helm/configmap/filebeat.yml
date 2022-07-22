@@ -1,0 +1,21 @@
+filebeat:
+  inputs:
+  - type: log
+    paths:
+    - {{ .Values.audit.dir }}/*
+    json.keys_under_root: true
+
+processors:
+  - drop_fields:
+      fields: ["agent.ephemeral_id", "agent.hostname", "agent.name", "agent.id", "agent.type", "agent.version", "ecs.version", "input.type", "log.file.path", "log.offset", "version"]
+
+output:
+  elasticsearch:
+    hosts: [{{ .Values.elasticSearch.host }}:443]
+    username: {{ .Values.elasticSearch.username }}
+    password: {{ .Values.elasticSearch.password }}
+    index: "audit-%{+yyyy.MM.dd}"
+
+setup.ilm.enabled: false
+setup.template.name: "audit"
+setup.template.pattern: "audit-*"

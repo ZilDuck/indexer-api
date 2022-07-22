@@ -1,0 +1,18 @@
+debug:   false
+
+cdn:
+  host: https://cdn-testnet.zildexr.com
+
+ingress:
+  host: api-testnet.zildexr.com
+
+replicaCount: 2
+
+db:
+  dialect:  postgresql
+  username: postgres
+  password: eufdkov2BH
+  host:     postgres-zilkroad.postgres.svc.cluster.local
+  port:     5432
+  name:     zildexr
+  schema:   testnet

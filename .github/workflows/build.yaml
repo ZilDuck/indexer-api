@@ -10,7 +10,6 @@ on:
 env:
   AWS_REGION: eu-west-1
   ECR_REPOSITORY: indexer
-  CONTAINER_NAME: api
 
 jobs:
   build:
@@ -55,18 +54,18 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY/$CONTAINER_NAME:${{ steps.commitTag.outputs.tag }} ./api
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY/$CONTAINER_NAME:${{ steps.commitTag.outputs.tag }}
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY/$CONTAINER_NAME:${{ steps.commitTag.outputs.tag }}"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY/api:${{ steps.commitTag.outputs.tag }} ./api
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY/api:${{ steps.commitTag.outputs.tag }}
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY/api:${{ steps.commitTag.outputs.tag }}"
 
       - name: Build, tag, and push docs image to Amazon ECR
         id: build-docs-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY/$CONTAINER_NAME:${{ steps.commitTag.outputs.tag }} ./docs
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY/$CONTAINER_NAME:${{ steps.commitTag.outputs.tag }}
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY/$CONTAINER_NAME:${{ steps.commitTag.outputs.tag }}"
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY/api-docs:${{ steps.commitTag.outputs.tag }} ./docs
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY/api-docs:${{ steps.commitTag.outputs.tag }}
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY/api-docs:${{ steps.commitTag.outputs.tag }}"
 
       - name: Create tag
         uses: actions/github-script@v5

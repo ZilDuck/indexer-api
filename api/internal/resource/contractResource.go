@@ -15,13 +15,19 @@ import (
 )
 
 type ContractResource struct {
-	contractRepo repository.ContactRepository
-	contractStateRepo repository.ContactStateRepository
-	nftRepo      repository.NftRepository
+	contractRepo         repository.ContactRepository
+	contractStateRepo    repository.ContactStateRepository
+	contractMetadataRepo repository.ContactMetadataRepository
+	nftRepo              repository.NftRepository
 }
 
-func NewContractResource(contractRepo repository.ContactRepository, contractStateRepo repository.ContactStateRepository, nftRepo repository.NftRepository) ContractResource {
-	return ContractResource{contractRepo, contractStateRepo,nftRepo}
+func NewContractResource(
+	contractRepo repository.ContactRepository,
+	contractStateRepo repository.ContactStateRepository,
+	contractMetadataRepo repository.ContactMetadataRepository,
+	nftRepo repository.NftRepository,
+) ContractResource {
+	return ContractResource{contractRepo, contractStateRepo, contractMetadataRepo, nftRepo}
 }
 
 func (r ContractResource) GetContract(c *gin.Context) {
@@ -90,6 +96,18 @@ func (r ContractResource) GetAttributes(c *gin.Context) {
 	}
 
 	jsonResponse(c, attributes)
+}
+
+func (r ContractResource) GetMetadata(c *gin.Context) {
+	contractAddr := getAddress(c.Param("contractAddr"))
+
+	md, err := r.contractMetadataRepo.GetMetadata(helpers.Network(c), contractAddr)
+	if err != nil {
+		handleError(c, err, fmt.Sprintf("Failed to get metadata: %s", contractAddr), 500)
+		return
+	}
+
+	jsonResponse(c, md)
 }
 
 func (r ContractResource) GetState(c *gin.Context) {

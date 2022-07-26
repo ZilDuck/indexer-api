@@ -31,11 +31,11 @@ jobs:
       - name: Deploy API to Kubernetes
         uses: WyriHaximus/github-action-helm3@v2
         with:
-          exec: helm upgrade --install ${{ env.SERVICE }} api/.helm -f api/.helm/config/${{ github.event.inputs.environment }}.yaml --namespace ${{ env.APP }}-${{ github.event.inputs.environment }} --atomic --set=image.app.tag=${{ github.event.inputs.tag }}
+          exec: helm upgrade --install ${{ env.SERVICE }} api/.helm -f api/.helm/config/${{ github.event.inputs.environment }}.yaml --namespace ${{ env.APP }}-${{ github.event.inputs.environment }} --atomic --set=image.tag=${{ github.event.inputs.tag }}
           kubeconfig: '${{ secrets.KUBECONFIG }}'
 
       - name: Deploy Docs to Kubernetes
         uses: WyriHaximus/github-action-helm3@v2
         with:
-          exec: helm upgrade --install ${{ env.SERVICE }}-docs docs/.helm -f docs/.helm/config/${{ github.event.inputs.environment }}.yaml --namespace ${{ env.APP }}-${{ github.event.inputs.environment }} --atomic --set=image.app.tag=${{ github.event.inputs.tag }}
+          exec: helm upgrade --install ${{ env.SERVICE }}-docs docs/.helm -f docs/.helm/config/${{ github.event.inputs.environment }}.yaml --namespace ${{ env.APP }}-${{ github.event.inputs.environment }} --atomic --set=image.tag=${{ github.event.inputs.tag }}
           kubeconfig: '${{ secrets.KUBECONFIG }}'

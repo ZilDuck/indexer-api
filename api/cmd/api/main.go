@@ -42,11 +42,17 @@ func setupRouter() *gin.Engine {
 	protect.GET("/audit/status/:month", auditResource.GetStatus)
 	protect.GET("/audit/log/:month", auditResource.GetLogsForDate)
 
-	contractResource := resource.NewContractResource(container.GetContractRepository(), container.GetContractStateRepository(), container.GetNftRepository())
+	contractResource := resource.NewContractResource(
+		container.GetContractRepository(),
+		container.GetContractStateRepository(),
+		container.GetContractMetadataRepository(),
+		container.GetNftRepository(),
+	)
 	protect.GET("/contract", contractResource.GetContracts)
 	protect.GET("/contract/:contractAddr", contractResource.GetContract)
 	protect.GET("/contract/:contractAddr/code", contractResource.GetCode)
 	protect.GET("/contract/:contractAddr/attributes", contractResource.GetAttributes)
+	protect.GET("/contract/:contractAddr/metadata", contractResource.GetMetadata)
 	protect.GET("/contract/:contractAddr/state", contractResource.GetState)
 
 	nftResource := resource.NewNftResource(container.GetNftRepository(), container.GetActionRepository(), container.GetMessenger(), container.GetMetadataService())

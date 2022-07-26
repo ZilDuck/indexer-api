@@ -14,6 +14,9 @@ on:
         required:    true
         description: ECR tag
         default:     latest
+env:
+  APP: zildexr
+  SERVICE: api
 
 jobs:
   deploy:
@@ -23,23 +26,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
         with:
-          repository: ZilDuck/indexer-automation
-          ref:        master
-          token:      ${{ secrets.ACCESS_TOKEN }}
+          ref: ${{ github.event.inputs.tag }}
 
-      - name: Setup Helm Chart
-        run: |
-          mv /home/runner/work/indexer-api/indexer-automation/deployments/zildexr/api .
-          mv /home/runner/work/indexer-api/indexer-automation/deployments/zildexr/docs .
-
-      - name: Deploy the API
+      - name: Deploy API to Kubernetes
         uses: WyriHaximus/github-action-helm3@v2
         with:
-          exec: helm upgrade --install api ./api -f ./api/config/${{ github.event.inputs.environment }}.yaml --namespace zildexr-${{ github.event.inputs.environment }} --atomic --set=image.tag=${{ github.event.inputs.tag }}
+          exec: helm upgrade --install ${{ env.SERVICE }} api/.helm -f api/.helm/config/${{ github.event.inputs.environment }}.yaml --namespace ${{ env.APP }}-${{ github.event.inputs.environment }} --atomic --set=image.app.tag=${{ github.event.inputs.tag }}
           kubeconfig: '${{ secrets.KUBECONFIG }}'
 
-      - name: Deploy the docs
+      - name: Deploy Docs to Kubernetes
         uses: WyriHaximus/github-action-helm3@v2
         with:
-          exec: helm upgrade --install api-docs ./docs -f ./docs/config/${{ github.event.inputs.environment }}.yaml --namespace zildexr-${{ github.event.inputs.environment }} --atomic --set=image.tag=${{ github.event.inputs.tag }}
+          exec: helm upgrade --install ${{ env.SERVICE }}-docs docs/.helm -f docs/.helm/config/${{ github.event.inputs.environment }}.yaml --namespace ${{ env.APP }}-${{ github.event.inputs.environment }} --atomic --set=image.app.tag=${{ github.event.inputs.tag }}
           kubeconfig: '${{ secrets.KUBECONFIG }}'

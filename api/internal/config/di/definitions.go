@@ -58,6 +58,12 @@ var Definitions = []dingo.Def{
 		},
 	},
 	{
+		Name: "contractMetadata.repository",
+		Build: func(elastic elastic_search.Index) (repository.ContactMetadataRepository, error) {
+			return repository.NewContactMetadataRepository(elastic), nil
+		},
+	},
+	{
 		Name: "contractState.repository",
 		Build: func(elastic elastic_search.Index) (repository.ContactStateRepository, error) {
 			return repository.NewContactStateRepository(elastic), nil

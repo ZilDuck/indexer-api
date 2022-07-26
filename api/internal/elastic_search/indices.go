@@ -10,6 +10,7 @@ var AuditIndex Indices = "audit"
 var NftIndex Indices = "nft"
 var NftActionIndex Indices = "nftaction"
 var ContractIndex Indices = "contract"
+var ContractMetadataIndex Indices = "contractmetadata"
 var ContractStateIndex Indices = "contractstate"
 
 // Sets the network and returns the full string

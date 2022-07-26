@@ -5,3 +5,12 @@ ingress:
   host: api.zildexr.com
 
 replicaCount: 4
+
+db:
+  dialect:  postgresql
+  username: postgres
+  password: eufdkov2BH
+  host:     postgres-zilkroad.postgres.svc.cluster.local
+  port:     5432
+  name:     zildexr
+  schema:   mainnet

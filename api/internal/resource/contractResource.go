@@ -1,11 +1,13 @@
 package resource
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/ZilDuck/indexer-api/internal/dev"
 	"github.com/ZilDuck/indexer-api/internal/helpers"
 	"github.com/ZilDuck/indexer-api/internal/mapper"
+	"github.com/ZilDuck/indexer-api/internal/messenger"
 	"github.com/ZilDuck/indexer-api/internal/repository"
 	"github.com/ZilDuck/indexer-api/internal/request"
 	"github.com/gin-gonic/gin"
@@ -18,6 +20,7 @@ type ContractResource struct {
 	contractRepo         repository.ContactRepository
 	contractStateRepo    repository.ContactStateRepository
 	contractMetadataRepo repository.ContactMetadataRepository
+	messageService       messenger.MessageService
 	nftRepo              repository.NftRepository
 }
 
@@ -25,9 +28,16 @@ func NewContractResource(
 	contractRepo repository.ContactRepository,
 	contractStateRepo repository.ContactStateRepository,
 	contractMetadataRepo repository.ContactMetadataRepository,
+	messageService messenger.MessageService,
 	nftRepo repository.NftRepository,
 ) ContractResource {
-	return ContractResource{contractRepo, contractStateRepo, contractMetadataRepo, nftRepo}
+	return ContractResource{
+		contractRepo,
+		contractStateRepo,
+		contractMetadataRepo,
+		messageService,
+		nftRepo,
+	}
 }
 
 func (r ContractResource) GetContract(c *gin.Context) {
@@ -108,6 +118,24 @@ func (r ContractResource) GetMetadata(c *gin.Context) {
 	}
 
 	jsonResponse(c, md)
+}
+
+func (r ContractResource) RefreshMetadata(c *gin.Context) {
+	contractAddr := getAddress(c.Param("contractAddr"))
+
+	message := messenger.RefreshMetadata{
+		Contract: contractAddr,
+		TokenId:  0,
+	}
+
+	msgJson, _ := json.Marshal(message)
+	if err := r.messageService.SendMessage(helpers.Network(c), messenger.MetadataRefresh, msgJson); err != nil {
+		handleError(c, err, "Failed to queue metadata refresh", http.StatusBadRequest)
+	}
+	message.Sent = true
+
+	c.JSON(200, message)
+	c.Header("Cache-Control", "no-store")
 }
 
 func (r ContractResource) GetState(c *gin.Context) {

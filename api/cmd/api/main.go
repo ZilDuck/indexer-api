@@ -46,6 +46,7 @@ func setupRouter() *gin.Engine {
 		container.GetContractRepository(),
 		container.GetContractStateRepository(),
 		container.GetContractMetadataRepository(),
+		container.GetMessenger(),
 		container.GetNftRepository(),
 	)
 	protect.GET("/contract", contractResource.GetContracts)
@@ -53,9 +54,15 @@ func setupRouter() *gin.Engine {
 	protect.GET("/contract/:contractAddr/code", contractResource.GetCode)
 	protect.GET("/contract/:contractAddr/attributes", contractResource.GetAttributes)
 	protect.GET("/contract/:contractAddr/metadata", contractResource.GetMetadata)
+	protect.GET("/contract/:contractAddr/refresh", contractResource.RefreshMetadata)
 	protect.GET("/contract/:contractAddr/state", contractResource.GetState)
 
-	nftResource := resource.NewNftResource(container.GetNftRepository(), container.GetActionRepository(), container.GetMessenger(), container.GetMetadataService())
+	nftResource := resource.NewNftResource(
+		container.GetNftRepository(),
+		container.GetActionRepository(),
+		container.GetMessenger(),
+		container.GetMetadataService(),
+	)
 	protect.GET("/nft/:contractAddr", nftResource.GetContractNfts)
 	protect.GET("/nft/:contractAddr/:tokenId", nftResource.GetContractNft)
 	protect.GET("/nft/:contractAddr/:tokenId/refresh", nftResource.RefreshMetadata)

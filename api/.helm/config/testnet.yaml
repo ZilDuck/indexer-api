@@ -11,7 +11,7 @@ replicaCount: 2
 db:
   dialect:  postgresql
   username: postgres
-  password: eufdkov2BH
+  password: TQN4EGYenx
   host:     postgres-zilkroad.postgres.svc.cluster.local
   port:     5432
   name:     zildexr

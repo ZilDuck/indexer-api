@@ -1,6 +1,0 @@
-FROM nginx:latest
-
-RUN mkdir /var/docs
-
-COPY . /var/docs
-

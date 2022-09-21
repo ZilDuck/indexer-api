@@ -11,3 +11,11 @@ service:
 
 ingress:
   host: ~
+
+resources:
+  requests:
+    cpu: 0
+    memory: 0M
+  limits:
+    cpu: 0.1
+    memory: 512M

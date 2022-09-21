@@ -36,3 +36,11 @@ aws:
 
 audit:
   dir: /var/audit
+
+resources:
+  requests:
+    cpu: 0
+    memory: 0M
+  limits:
+    cpu: 0.2
+    memory: 512M

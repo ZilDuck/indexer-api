@@ -43,6 +43,13 @@ spec:
               mountPath: /cache
             - name: audit
               mountPath: {{ .Values.audit.dir }}
+          resources:
+            limits:
+              cpu: {{ .Values.resources.limits.cpu | quote }}
+              memory: {{ .Values.resources.limits.memory | quote }}
+            requests:
+              cpu: {{ .Values.resources.requests.cpu | quote }}
+              memory: {{ .Values.resources.requests.memory | quote }}
         - name: filebeat
           image: elastic/filebeat:7.17.0
           imagePullPolicy: IfNotPresent

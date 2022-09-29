@@ -10,7 +10,7 @@ import (
 )
 
 type NftRepository interface {
-	GetForAddress(network, ownerAddr string, shape string, details bool) ([]entity.NftOwner, error)
+	GetForAddress(network, ownerAddr string, shape string, details bool, showDelegated bool) ([]entity.NftOwner, error)
 	GetForContract(network, contractAddr string, size, offset int) ([]entity.Nft, int64, error)
 	GetForContractByTokenId(network, contractAddr string, tokenId uint64) (*entity.Nft, error)
 	GetForContractByTokenIds(network, contractAddr string, tokenIds []uint64) ([]entity.Nft, error)
@@ -29,18 +29,21 @@ func NewNftRepository(elastic elastic_search.Index) NftRepository {
 	return nftRepository{elastic: elastic}
 }
 
-func (nftRepo nftRepository) GetForAddress(network, ownerAddr string, shape string, details bool) ([]entity.NftOwner, error) {
+func (nftRepo nftRepository) GetForAddress(network, ownerAddr string, shape string, details bool, showDelegated bool) ([]entity.NftOwner, error) {
 	contracts := make([]entity.NftOwner, 0)
 
-	query := elastic.NewBoolQuery().Must(
+	queries := []elastic.Query{
 		elastic.NewTermQuery("owner.keyword", ownerAddr),
 		elastic.NewTermQuery("burnedAt", 0),
-	)
+	}
+	if showDelegated == false {
+		queries = append(queries, elastic.NewTermQuery("isDelegated", false))
+	}
 
 	contractAgg := elastic.NewTermsAggregation().Field("contract.keyword").Size(10000).
 		SubAggregation("tokenId", elastic.NewTermsAggregation().Field("tokenId").Size(10000))
 
-	agg := elastic.NewFilterAggregation().Filter(query)
+	agg := elastic.NewFilterAggregation().Filter(elastic.NewBoolQuery().Must(queries...))
 	if shape == "" || shape == string(entity.ZRC1) {
 		agg.SubAggregation("zrc6", elastic.NewFilterAggregation().Filter(elastic.NewTermQuery("zrc6", true)).
 			SubAggregation("contract", contractAgg))

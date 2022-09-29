@@ -116,7 +116,13 @@ func (r NftResource) GetNftsOwnedByAddress(c *gin.Context) {
 		showDetails = true
 	}
 
-	nfts, err := r.nftRepo.GetForAddress(helpers.Network(c), ownerAddr, shape, showDetails)
+	delegated := strings.ToLower(c.DefaultQuery("delegated", "true"))
+	showDelegated := true
+	if delegated == "false" {
+		showDelegated = false
+	}
+
+	nfts, err := r.nftRepo.GetForAddress(helpers.Network(c), ownerAddr, shape, showDetails, showDelegated)
 	if err != nil {
 		handleError(c, err, fmt.Sprintf("Failed to get nfts for address: %s", ownerAddr), http.StatusInternalServerError)
 		return
@@ -133,7 +139,7 @@ func (r NftResource) RefreshMetadata(c *gin.Context) {
 
 	message := messenger.RefreshMetadata{
 		Contract: *contractAddr,
-		TokenId: *tokenId,
+		TokenId:  *tokenId,
 	}
 
 	msgJson, _ := json.Marshal(message)

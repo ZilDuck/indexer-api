@@ -36,8 +36,8 @@ func (nftRepo nftRepository) GetForAddress(network, ownerAddr string, shape stri
 		elastic.NewTermQuery("owner.keyword", ownerAddr),
 		elastic.NewTermQuery("burnedAt", 0),
 	}
-	if showDelegated == false {
-		queries = append(queries, elastic.NewTermQuery("isDelegated", false))
+	if showDelegated != true {
+		queries = append(queries, elastic.NewBoolQuery().MustNot(elastic.NewTermQuery("isDelegated", true)))
 	}
 
 	contractAgg := elastic.NewTermsAggregation().Field("contract.keyword").Size(10000).

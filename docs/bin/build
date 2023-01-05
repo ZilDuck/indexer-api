@@ -11,5 +11,5 @@ fi
 echo "Using tag $tag"
 
 docker run --rm --name slate -v $(pwd)/build:/srv/slate/build -v $(pwd)/source:/srv/slate/source slatedocs/slate build
-docker build ./build -f ./Dockerfile.deploy -t 465700395685.dkr.ecr.eu-west-1.amazonaws.com/indexer/api-docs:$tag
-docker push 465700395685.dkr.ecr.eu-west-1.amazonaws.com/indexer/api-docs:$tag
+docker build ./build -f ./Dockerfile.deploy -t 981130112916.dkr.ecr.us-east-1.amazonaws.com/indexer/api-docs:$tag
+docker push 981130112916.dkr.ecr.us-east-1.amazonaws.com/indexer/api-docs:$tag

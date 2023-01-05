@@ -1,5 +1,5 @@
 image:
-  repository: 465700395685.dkr.ecr.eu-west-1.amazonaws.com/indexer/api
+  repository: 981130112916.dkr.ecr.us-east-1.amazonaws.com/indexer/api
   tag: latest
   pullPolicy: IfNotPresent
 
@@ -32,7 +32,7 @@ db:
 aws:
   access_key: AKIAWY3PIDKSWL5ICD7E
   secret_key: 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
-  region:     eu-west-1
+  region:     us-east-1
 
 audit:
   dir: /var/audit

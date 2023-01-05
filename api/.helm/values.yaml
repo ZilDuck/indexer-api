@@ -1,5 +1,5 @@
 image:
-  repository: 981130112916.dkr.ecr.us-east-1.amazonaws.com/indexer/api
+  repository: 981130112916.dkr.ecr.us-east-1.amazonaws.com/zildexr/public-api
   tag: latest
   pullPolicy: IfNotPresent
 

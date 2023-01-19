@@ -30,8 +30,8 @@ db:
   root_ca:  ~
 
 aws:
-  access_key: AKIAWY3PIDKSWL5ICD7E
-  secret_key: 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
+  access_key: AKIA6I37JN6KE6UPLICF
+  secret_key: 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
   region:     us-east-1
 
 audit:
